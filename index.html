@@ -101,10 +101,10 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
 /* PAGES */
 .app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.page{display:none;flex:1;overflow-y:auto;height:100%;}
-.page.active{display:flex;flex-direction:column;}
+.page{display:none;flex:1;overflow-y:auto;height:100%;-webkit-overflow-scrolling:touch;}
+.page.active{display:block;}
 /* LIBRARY */
-.lib-layout{display:flex;flex:1;overflow:hidden;}
+.lib-layout{display:flex;min-height:100%;}
 .lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
 .sdb{width:100%;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.46);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left;transition:all 0.15s;position:relative;}
 .sdb:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
@@ -181,7 +181,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .wtab.warn .wdot{display:block;}
 .wchk{font-size:9px;display:none;}
 .wtab.done .wchk{display:inline;}
-.plan-body{flex:1;overflow-y:auto;padding:14px 16px 80px;-webkit-overflow-scrolling:touch;}
+.plan-body{padding:14px 16px 80px;}
 .wkp{display:none;}.wkp.active{display:block;}
 .wkh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
 .wkt{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
@@ -351,6 +351,19 @@ select option{background:#1a3050;color:#fff;}
 .cr-date{font-size:10px;color:rgba(255,255,255,0.22);font-family:'DM Mono',monospace;margin-left:auto;}
 @media(max-width:768px){.cr-grid{grid-template-columns:1fr 1fr;}.cr-summary-pills{display:none;}}
 
+
+/* PROGRESS PAGE */
+.prog-chart-card{background:var(--mid);border:1px solid var(--border);border-radius:10px;padding:14px 16px;overflow:hidden;}
+.prog-chart-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;margin-bottom:4px;}
+.prog-chart-subtitle{font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:12px;font-family:'DM Mono',monospace;}
+.prog-chart-wrap{position:relative;width:100%;height:160px;}
+.prog-filter-btn{padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.prog-filter-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);}
+.prog-filter-btn.active{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.35);color:var(--gold-l);}
+.prog-std-bands{position:absolute;inset:0;pointer-events:none;}
+.prog-no-chart{padding:30px;text-align:center;font-size:11px;color:rgba(255,255,255,0.2);}
+@media(max-width:768px){#progressChartsGrid{grid-template-columns:1fr;}}
+
 @media print{
   #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
   html,body{height:auto;overflow:visible;}
@@ -428,6 +441,7 @@ select option{background:#1a3050;color:#fff;}
       <button class="nav-tab" onclick="showPage('planner')">My Plan</button>
       <button class="nav-tab" id="navAth" onclick="showPage('athletes')" style="display:none">Athletes</button>
       <button class="nav-tab" id="navResults" onclick="showPage('results')">Results</button>
+      <button class="nav-tab" id="navProgress" onclick="showPage('progress')">My Progress</button>
     </div>
     <div class="header-right">
       <div class="user-chip" id="uChip"><div class="chip-dot"></div><span id="uChipName"></span></div>
@@ -471,6 +485,28 @@ select option{background:#1a3050;color:#fff;}
       <div class="plan-wks" id="wkTabsEl"></div>
       <div class="plan-body" id="planBodyEl"></div>
     </div>
+    <!-- MY PROGRESS PAGE -->
+    <div id="page-progress" class="page">
+      <div style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+          <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Progress</h2>
+          <div id="progressAthleteTag" style="padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;display:none;"></div>
+        </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:18px;">Your test results over time. Each point is a submission — hover to see the date and value.</p>
+        <div id="progressNoData" style="display:none;text-align:center;padding:40px 20px;color:rgba(255,255,255,0.2);">
+          <div style="font-size:32px;margin-bottom:10px;">📊</div>
+          <p style="font-size:13px;">No results submitted yet.</p>
+          <p style="font-size:11px;margin-top:4px;">Go to Results, fill in your scores and hit Save &amp; Submit to start tracking.</p>
+        </div>
+        <div id="progressCharts" style="display:none;">
+          <!-- Chart filter -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="progressFilters"></div>
+          <!-- Charts container -->
+          <div id="progressChartsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ATHLETES PAGE -->
     <div id="page-athletes" class="page">
       <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
@@ -481,11 +517,11 @@ select option{background:#1a3050;color:#fff;}
           <button class="btn-add" onclick="openModal('createAthModal')" style="margin-left:auto;margin-bottom:8px">+ Create Account</button>
         </div>
         <!-- Accounts tab -->
-        <div id="ath-panel-accounts" style="flex:1;overflow-y:auto;padding:18px 20px;">
+        <div id="ath-panel-accounts" style="padding:18px 20px;">
           <div id="athTableWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p></div>
         </div>
         <!-- Results tab -->
-        <div id="ath-panel-results" style="flex:1;overflow-y:auto;padding:18px 20px;display:none;">
+        <div id="ath-panel-results" style="padding:18px 20px;display:none;">
           <div id="coachResultsWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p></div>
         </div>
       </div>
@@ -494,13 +530,27 @@ select option{background:#1a3050;color:#fff;}
 
     <!-- RESULTS PAGE -->
     <div id="page-results" class="page">
-      <div style="padding:18px 20px;overflow-y:auto;flex:1;">
+      <div style="padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
           <div id="resultsAthleteTag" style="display:none;padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;"></div>
-          <button class="btn-add" id="btnSaveResults" onclick="saveResults()" style="margin-left:auto">Save Results</button>
+          <div id="btnSaveResults" style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <label style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.35);">Test Date</label>
+              <input type="date" id="resultsDate" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;padding:5px 9px;outline:none;color-scheme:dark;">
+            </div>
+            <button class="btn-add" onclick="saveResults()" style="margin-top:14px;">&#128190; Save &amp; Submit</button>
+          </div>
         </div>
-        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:18px;">Track your GB National Youth/Junior Club Test scores. Gold &#127881; Amber &#127774; Red &#128308;</p>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">Track your GB National Youth/Junior Club Test scores. 🥇 Gold &nbsp;🟠 Amber &nbsp;🔴 Red</p>
+        <!-- Submission history -->
+        <div id="resultsHistoryBar" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:10px 14px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Past Submissions</span>
+            <button onclick="clearResultsForm()" style="margin-left:auto;padding:3px 9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:rgba(255,255,255,0.4);font-size:10px;cursor:pointer;font-family:'Inter',sans-serif;">+ New Entry</button>
+          </div>
+          <div id="resultsHistoryList" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
 
         <!-- TECHNICAL -->
         <div class="results-section">
@@ -509,7 +559,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Half Twist + Continuous 720 Spin x3</div>
               <div class="rc-desc">3x half twist continuous spin turning left. 5 sculls before starting, 3 sculls per ¼, 1 scull pause before spin. Rest 30s between each.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 7.5 height, stationary 5 sculls, perfect levels</span><span class="std amber">Amber: 1 fault from Gold</span><span class="std red">Red: 2 faults from Gold</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 7.5 height, stationary 5 sculls, perfect levels</span><span class="std amber">🟠 Amber: 1 fault from Gold</span><span class="std red">🔴 Red: 2 faults from Gold</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Score</label><select id="r_twistspin_score" onchange="autoStd('twistspin')"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
                 <div class="rc-input-row"><label>Notes</label><input type="text" id="r_twistspin_note" placeholder="e.g. height achieved, faults..."></div>
@@ -518,7 +568,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Vertical 30 Support Sculls x3</div>
               <div class="rc-desc">3 verticals (facing left, forward, right). Hold for 30 sculls each, as high, still and stationary as possible. Rest 30s between each.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 7.5 height at start, no lower than 6.5 at end, minimal travel/deviation</span><span class="std amber">Amber: 1 fault from Gold</span><span class="std red">Red: 2 faults from Gold</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 7.5 height at start, no lower than 6.5 at end, minimal travel/deviation</span><span class="std amber">🟠 Amber: 1 fault from Gold</span><span class="std red">🔴 Red: 2 faults from Gold</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Score</label><select id="r_vertical_score" onchange="autoStd('vertical')"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
                 <div class="rc-input-row"><label>Notes</label><input type="text" id="r_vertical_note" placeholder="e.g. height, travel issues..."></div>
@@ -534,7 +584,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">400m Timed Swim</div>
               <div class="rc-desc">25m pool, athletes start in water. Front crawl with turns. No nose clip.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 5:00 or faster</span><span class="std amber">Amber: 5:01–5:20</span><span class="std red">Red: 5:21 or slower</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 5:00 or faster</span><span class="std amber">🟠 Amber: 5:01–5:20</span><span class="std red">🔴 Red: 5:21 or slower</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Time (mm:ss)</label><input type="text" id="r_400m_time" placeholder="e.g. 4:55" oninput="calcSwimStd('400m')"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_400m_std">—</div></div>
@@ -544,7 +594,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">200m IM Kick Timed Swim</div>
               <div class="rc-desc">25m pool, start in water. No float/sculling. 2 lengths each: fly, back, breast, f/c kick. 10s penalty per breath on underwater lengths.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 3:35 or faster</span><span class="std amber">Amber: 3:36–3:50</span><span class="std red">Red: 3:51 or slower</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 3:35 or faster</span><span class="std amber">🟠 Amber: 3:36–3:50</span><span class="std red">🔴 Red: 3:51 or slower</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Time (mm:ss)</label><input type="text" id="r_200im_time" placeholder="e.g. 3:30" oninput="calcSwimStd('200im')"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_200im_std">—</div></div>
@@ -554,7 +604,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">150m Hypoxic Test</div>
               <div class="rc-desc">Juniors: fly/under/fc/fc/under/fly x2. Youth: under/fc/back/under/fly/fc x2. Start with dive if safe. Record time of first 6L, start 2nd set at 3min.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 2:00 or faster for both sets</span><span class="std amber">Amber: 2:01–2:10 for both</span><span class="std red">Red: 2:11 or slower</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 2:00 or faster for both sets</span><span class="std amber">🟠 Amber: 2:01–2:10 for both</span><span class="std red">🔴 Red: 2:11 or slower</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Set 1 time</label><input type="text" id="r_hyp1_time" placeholder="e.g. 1:58" oninput="calcHypoxicStd()"></div>
                 <div class="rc-input-row"><label>Set 2 time</label><input type="text" id="r_hyp2_time" placeholder="e.g. 2:03" oninput="calcHypoxicStd()"></div>
@@ -572,7 +622,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">10x Jumping Squats + Wall Sit Hold</div>
               <div class="rc-desc">10 jumping squats at 65bpm hitting 90°, knees over toes. Immediately into wall sit: arms crossed, back flat, hips/knees at 90°. Time until failure or 2min cut-off.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 2:00 (cut-off)</span><span class="std amber">Amber: 1:30–1:59</span><span class="std red">Red: 1:29 or below</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 2:00 (cut-off)</span><span class="std amber">🟠 Amber: 1:30–1:59</span><span class="std red">🔴 Red: 1:29 or below</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Wall sit time (mm:ss)</label><input type="text" id="r_squat_time" placeholder="e.g. 2:00" oninput="calcTimeStd('squat',120,90,0)"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_squat_std">—</div></div>
@@ -582,7 +632,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">10x V-Sit + Front Plank Hold</div>
               <div class="rc-desc">10 V-sits at 65bpm, then immediately into plank. Body extended, elbows under shoulders, straight line head to feet. Hold until failure or 3min cut-off.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 3:00+</span><span class="std amber">Amber: 2:30–2:59</span><span class="std red">Red: 2:29 or below</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 3:00+</span><span class="std amber">🟠 Amber: 2:30–2:59</span><span class="std red">🔴 Red: 2:29 or below</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Plank time (mm:ss)</label><input type="text" id="r_vsit_time" placeholder="e.g. 3:00" oninput="calcTimeStd('vsit',180,150,0)"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_vsit_std">—</div></div>
@@ -592,7 +642,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Continuous Narrow Press-Ups</div>
               <div class="rc-desc">Prone position, hands under shoulders, fingers forward, elbows to ceiling. 65bpm metronome. Chest to floor (fist distance max). Count perfect reps until failure.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 30+</span><span class="std amber">Amber: 20–29</span><span class="std red">Red: 19 or less</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 30+</span><span class="std amber">🟠 Amber: 20–29</span><span class="std red">🔴 Red: 19 or less</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Reps completed</label><input type="number" id="r_pressup_reps" placeholder="e.g. 28" min="0" oninput="calcRepStd('pressup',30,20)"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_pressup_std">—</div></div>
@@ -602,7 +652,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">10x Single Leg Glute Bridge + 45° Hold</div>
               <div class="rc-desc">Supine, one knee bent. 10 pulses at 65bpm with vertical leg through full range. Then hold full hip extension (shoulder–hip–knee–foot in line) until failure or 3min.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 3:00 (cut-off)</span><span class="std amber">Amber: 2:30–2:59</span><span class="std red">Red: 2:29 or less</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 3:00 (cut-off)</span><span class="std amber">🟠 Amber: 2:30–2:59</span><span class="std red">🔴 Red: 2:29 or less</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Hold time (mm:ss)</label><input type="text" id="r_glute_time" placeholder="e.g. 3:00" oninput="calcTimeStd('glute',180,150,0)"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_glute_std">—</div></div>
@@ -612,7 +662,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">2 x 1min Fast Support Sculls</div>
               <div class="rc-desc">Back flat against wall. Medium resistance band. Arms 90°, firm hands, fingers tilted up. Only forearm moves, shoulder blades squeezed. Count sculls each minute, add together.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 250+ total</span><span class="std amber">Amber: 230–249</span><span class="std red">Red: 229 or less</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 250+ total</span><span class="std amber">🟠 Amber: 230–249</span><span class="std red">🔴 Red: 229 or less</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Set 1 sculls</label><input type="number" id="r_scull1" placeholder="e.g. 130" min="0" oninput="calcScullStd()"></div>
                 <div class="rc-input-row"><label>Set 2 sculls</label><input type="number" id="r_scull2" placeholder="e.g. 125" min="0" oninput="calcScullStd()"></div>
@@ -630,7 +680,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Left Leg Split</div>
               <div class="rc-desc">Hip bones forward, shoulders over hips, arm extended back in line with rear knee. Both legs and feet fully extended. Hold 10s. Measure oversplit in cm.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 20cm oversplit front &amp; back simultaneously, crotch on floor, straight legs &amp; pointed feet</span><span class="std amber">Amber: 20cm front only</span><span class="std red">Red: Less than 20cm or not flat</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 20cm oversplit front &amp; back simultaneously, crotch on floor, straight legs &amp; pointed feet</span><span class="std amber">🟠 Amber: 20cm front only</span><span class="std red">🔴 Red: Less than 20cm or not flat</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Score</label><select id="r_lsplit_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
                 <div class="rc-input-row"><label>Measurement (cm from floor)</label><input type="number" id="r_lsplit_cm" placeholder="0 = flat" min="-30" max="50"></div>
@@ -640,7 +690,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Right Leg Split</div>
               <div class="rc-desc">Same as left. Hip bones forward, shoulders over hips, arm extended back. Both legs extended, feet pointed. Hold 10s.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 20cm oversplit front &amp; back, crotch on floor</span><span class="std amber">Amber: 20cm front only</span><span class="std red">Red: Less than 20cm or not flat</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 20cm oversplit front &amp; back, crotch on floor</span><span class="std amber">🟠 Amber: 20cm front only</span><span class="std red">🔴 Red: Less than 20cm or not flat</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Score</label><select id="r_rsplit_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
                 <div class="rc-input-row"><label>Measurement (cm from floor)</label><input type="number" id="r_rsplit_cm" placeholder="0 = flat" min="-30" max="50"></div>
@@ -650,7 +700,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Box Split</div>
               <div class="rc-desc">Legs open 180° to sides, extended, on horizontal line. For max score: body upright, hands off floor. Measure pubic bone to floor if body forward.</div>
-              <div class="rc-standards"><span class="std gold">Gold: Flat, 180°, body upright, hands off floor, straight legs &amp; feet pointed</span><span class="std amber">Amber: 5cm or less, body forward, elbows on floor</span><span class="std red">Red: More than 5cm from floor</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: Flat, 180°, body upright, hands off floor, straight legs &amp; feet pointed</span><span class="std amber">🟠 Amber: 5cm or less, body forward, elbows on floor</span><span class="std red">🔴 Red: More than 5cm from floor</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Score</label><select id="r_box_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
                 <div class="rc-input-row"><label>Distance from floor (cm)</label><input type="number" id="r_box_cm" placeholder="0 = flat" min="0" max="50"></div>
@@ -660,7 +710,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Bridge</div>
               <div class="rc-desc">Hands flat under shoulders (not further back), heels on floor. Measure cm between fingertips and back of heels. If fingers past heels = minus value.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 10cm or below (or minus)</span><span class="std amber">Amber: 11–20cm</span><span class="std red">Red: More than 20cm</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 10cm or below (or minus)</span><span class="std amber">🟠 Amber: 11–20cm</span><span class="std red">🔴 Red: More than 20cm</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Measurement (cm)</label><input type="number" id="r_bridge_cm" placeholder="e.g. 8" min="-30" max="60" oninput="calcBridgeStd()"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_bridge_std">—</div></div>
@@ -670,7 +720,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Leg Extension</div>
               <div class="rc-desc">L-sit, back flat against wall. Good posture, extended legs and feet. Lift heels. Knees remain on floor. Measure cm between heel and floor.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 5cm+ from floor</span><span class="std amber">Amber: 2–4.9cm</span><span class="std red">Red: 0–1.9cm</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 5cm+ from floor</span><span class="std amber">🟠 Amber: 2–4.9cm</span><span class="std red">🔴 Red: 0–1.9cm</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Heel height (cm)</label><input type="number" id="r_legext_cm" placeholder="e.g. 6" step="0.1" min="0" max="20" oninput="calcLegExtStd()"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_legext_std">—</div></div>
@@ -680,7 +730,7 @@ select option{background:#1a3050;color:#fff;}
             <div class="result-card">
               <div class="rc-name">Feet Extension</div>
               <div class="rc-desc">L-sit, back flat against wall, heels on floor, legs straight. Toes and feet fully extended/pointed. Measure cm from big toe to floor.</div>
-              <div class="rc-standards"><span class="std gold">Gold: 0–3cm</span><span class="std amber">Amber: 3.01–6cm</span><span class="std red">Red: More than 6cm</span></div>
+              <div class="rc-standards"><span class="std gold">🥇 Gold: 0–3cm</span><span class="std amber">🟠 Amber: 3.01–6cm</span><span class="std red">🔴 Red: More than 6cm</span></div>
               <div class="rc-inputs">
                 <div class="rc-input-row"><label>Big toe to floor (cm)</label><input type="number" id="r_feetext_cm" placeholder="e.g. 2" step="0.1" min="0" max="20" oninput="calcFeetExtStd()"></div>
                 <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_feetext_std">—</div></div>
@@ -786,7 +836,7 @@ async function doLogout(){await window._fbFns.signOut(window._auth);}
 async function doCreateAth(){const n=document.getElementById('caName').value.trim(),e=document.getElementById('caEmail').value.trim(),p=document.getElementById('caPw').value,err=document.getElementById('caErr');if(!n||!e||!p){showErr(err,'Please fill all fields.');return;}if(p.length<6){showErr(err,'Password must be 6+ characters.');return;}try{const res=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+window._auth.app.options.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});const d=await res.json();if(d.error){showErr(err,d.error.message);return;}await dbSet('users/'+d.localId,{name:n,email:e,role:'athlete',createdAt:Date.now()});closeModal('createAthModal');['caName','caEmail','caPw'].forEach(id=>document.getElementById(id).value='');alert('Account created for '+n+'. They can sign in with: '+e);loadAthTable();}catch(ex){showErr(err,'Error: '+ex.message);}}
 async function doChangePw(){const p1=document.getElementById('pw1').value,p2=document.getElementById('pw2').value,err=document.getElementById('pwErr');if(p1.length<6){showErr(err,'Minimum 6 characters.');return;}if(p1!==p2){showErr(err,'Passwords do not match.');return;}try{await window._fbFns.updatePassword(window._auth.currentUser,p1);closeModal('pwModal');alert('Password updated.');}catch(ex){showErr(err,authErr(ex.code));}}
 
-function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
+function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('navProgress').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
 
 function toggleMobMenu(){const d=document.getElementById('mobDrawer');d.classList.toggle('open');}
 document.addEventListener('click',e=>{const d=document.getElementById('mobDrawer');if(d.classList.contains('open')&&!e.target.closest('.mob-drawer')&&!e.target.closest('.menu-btn'))d.classList.remove('open');});
@@ -946,7 +996,7 @@ function getResultValue(r, meta){
   return '';
 }
 
-function stdLabel(s){return s==='gold'?'Gold ★':s==='amber'?'Amber':s==='red'?'Red':'';}
+function stdLabel(s){return s==='gold'?'🥇 Gold':s==='amber'?'Amber':s==='red'?'Red':'';}
 
 async function loadCoachResults(){
   const wrap = document.getElementById('coachResultsWrap');
@@ -978,9 +1028,9 @@ async function loadCoachResults(){
     const savedDate = r.savedAt ? new Date(r.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
 
     const pillsHtml = hasAny ? `
-      ${golds?'<span class="cr-pill gold">'+golds+' Gold</span>':''}
-      ${ambers?'<span class="cr-pill amber">'+ambers+' Amber</span>':''}
-      ${reds?'<span class="cr-pill red">'+reds+' Red</span>':''}
+      ${golds?'<span class="cr-pill gold">🥇 '+golds+' Gold</span>':''}
+      ${ambers?'<span class="cr-pill amber">🟠 '+ambers+' Amber</span>':''}
+      ${reds?'<span class="cr-pill red">🔴 '+reds+' Red</span>':''}
     ` : '<span class="cr-pill none">No results yet</span>';
 
     const sectionsHtml = TEST_META.map(sec=>{
@@ -1042,24 +1092,277 @@ document.addEventListener('click',e=>{if(!e.target.closest('.pop')&&!e.target.cl
 // RESULTS
 function parseTime(s){const p=s.trim().split(':');if(p.length===2){return parseInt(p[0])*60+parseFloat(p[1]);}return parseFloat(s)||null;}
 function setStdBadge(id,level,text){const el=document.getElementById(id);if(!el)return;el.className='std-badge'+(level?' '+level:'');el.textContent=text||level||'—';}
-function calcSwimStd(id){const times={'400m':{gold:300,amber:320},'200im':{gold:215,amber:230}};const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}const s=times[id];if(t<=s.gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(t<=s.amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
-function calcHypoxicStd(){const t1=parseTime(document.getElementById('r_hyp1_time')?.value||'');const t2=parseTime(document.getElementById('r_hyp2_time')?.value||'');if(!t1||!t2){setStdBadge('r_hyp_std','','—');return;}const worst=Math.max(t1,t2);if(worst<=120)setStdBadge('r_hyp_std','gold','Gold ★');else if(worst<=130)setStdBadge('r_hyp_std','amber','Amber');else setStdBadge('r_hyp_std','red','Red');}
-function calcTimeStd(id,gold,amberMin,_){const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}if(t>=gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(t>=amberMin)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
-function calcRepStd(id,gold,amber){const v=parseInt(document.getElementById('r_'+id+'_reps')?.value||'');if(isNaN(v)){setStdBadge('r_'+id+'_std','','—');return;}if(v>=gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(v>=amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
-function calcScullStd(){const s1=parseInt(document.getElementById('r_scull1')?.value||0)||0,s2=parseInt(document.getElementById('r_scull2')?.value||0)||0;const tot=s1+s2;if(!tot){setStdBadge('r_scull_std','','—');return;}const lbl=tot+' total';if(tot>=250)setStdBadge('r_scull_std','gold','Gold ★ — '+lbl);else if(tot>=230)setStdBadge('r_scull_std','amber','Amber — '+lbl);else setStdBadge('r_scull_std','red','Red — '+lbl);}
-function calcBridgeStd(){const v=parseFloat(document.getElementById('r_bridge_cm')?.value||'');if(isNaN(v)){setStdBadge('r_bridge_std','','—');return;}if(v<=10)setStdBadge('r_bridge_std','gold','Gold ★');else if(v<=20)setStdBadge('r_bridge_std','amber','Amber');else setStdBadge('r_bridge_std','red','Red');}
-function calcLegExtStd(){const v=parseFloat(document.getElementById('r_legext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_legext_std','','—');return;}if(v>=5)setStdBadge('r_legext_std','gold','Gold ★');else if(v>=2)setStdBadge('r_legext_std','amber','Amber');else setStdBadge('r_legext_std','red','Red');}
-function calcFeetExtStd(){const v=parseFloat(document.getElementById('r_feetext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_feetext_std','','—');return;}if(v<=3)setStdBadge('r_feetext_std','gold','Gold ★');else if(v<=6)setStdBadge('r_feetext_std','amber','Amber');else setStdBadge('r_feetext_std','red','Red');}
+function calcSwimStd(id){const times={'400m':{gold:300,amber:320},'200im':{gold:215,amber:230}};const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}const s=times[id];if(t<=s.gold)setStdBadge('r_'+id+'_std','gold','🥇 Gold');else if(t<=s.amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcHypoxicStd(){const t1=parseTime(document.getElementById('r_hyp1_time')?.value||'');const t2=parseTime(document.getElementById('r_hyp2_time')?.value||'');if(!t1||!t2){setStdBadge('r_hyp_std','','—');return;}const worst=Math.max(t1,t2);if(worst<=120)setStdBadge('r_hyp_std','gold','🥇 Gold');else if(worst<=130)setStdBadge('r_hyp_std','amber','Amber');else setStdBadge('r_hyp_std','red','Red');}
+function calcTimeStd(id,gold,amberMin,_){const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}if(t>=gold)setStdBadge('r_'+id+'_std','gold','🥇 Gold');else if(t>=amberMin)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcRepStd(id,gold,amber){const v=parseInt(document.getElementById('r_'+id+'_reps')?.value||'');if(isNaN(v)){setStdBadge('r_'+id+'_std','','—');return;}if(v>=gold)setStdBadge('r_'+id+'_std','gold','🥇 Gold');else if(v>=amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcScullStd(){const s1=parseInt(document.getElementById('r_scull1')?.value||0)||0,s2=parseInt(document.getElementById('r_scull2')?.value||0)||0;const tot=s1+s2;if(!tot){setStdBadge('r_scull_std','','—');return;}const lbl=tot+' total';if(tot>=250)setStdBadge('r_scull_std','gold','🥇 Gold — '+lbl);else if(tot>=230)setStdBadge('r_scull_std','amber','Amber — '+lbl);else setStdBadge('r_scull_std','red','Red — '+lbl);}
+function calcBridgeStd(){const v=parseFloat(document.getElementById('r_bridge_cm')?.value||'');if(isNaN(v)){setStdBadge('r_bridge_std','','—');return;}if(v<=10)setStdBadge('r_bridge_std','gold','🥇 Gold');else if(v<=20)setStdBadge('r_bridge_std','amber','Amber');else setStdBadge('r_bridge_std','red','Red');}
+function calcLegExtStd(){const v=parseFloat(document.getElementById('r_legext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_legext_std','','—');return;}if(v>=5)setStdBadge('r_legext_std','gold','🥇 Gold');else if(v>=2)setStdBadge('r_legext_std','amber','Amber');else setStdBadge('r_legext_std','red','Red');}
+function calcFeetExtStd(){const v=parseFloat(document.getElementById('r_feetext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_feetext_std','','—');return;}if(v<=3)setStdBadge('r_feetext_std','gold','🥇 Gold');else if(v<=6)setStdBadge('r_feetext_std','amber','Amber');else setStdBadge('r_feetext_std','red','Red');}
 
 const RESULT_FIELDS=['twistspin_score','twistspin_note','vertical_score','vertical_note','400m_time','400m_note','200im_time','200im_note','hyp1_time','hyp2_time','hyp_note','squat_time','squat_note','vsit_time','vsit_note','pressup_reps','pressup_note','glute_time','glute_note','scull1','scull2','scull_note','lsplit_score','lsplit_cm','lsplit_note','rsplit_score','rsplit_cm','rsplit_note','box_score','box_cm','box_note','bridge_cm','bridge_note','legext_cm','legext_note','feetext_cm','feetext_note'];
 
-async function saveResults(){if(!CU||isAdmin)return;const data={};RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el)data[f]=el.value;});data.savedAt=Date.now();await dbSet('results/'+CU.uid,data);alert('Results saved!');}
+let resultsHistory = []; // array of {id, date, dateLabel, ...fields}
 
-function loadResults(data){if(!data)return;RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el&&data[f]!==undefined)el.value=data[f];});// Recalc all auto-standards
-['400m','200im'].forEach(calcSwimStd);calcHypoxicStd();['squat','vsit','glute'].forEach(id=>calcTimeStd(id,id==='vsit'?180:180,id==='vsit'?150:150,0));calcRepStd('pressup',30,20);calcScullStd();calcBridgeStd();calcLegExtStd();calcFeetExtStd();}
+async function saveResults(){
+  if(!CU||isAdmin)return;
+  const dateVal = document.getElementById('resultsDate').value;
+  if(!dateVal){alert('Please select a test date before saving.');return;}
+  const data={};
+  RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el)data[f]=el.value;});
+  data.date=dateVal;
+  data.savedAt=Date.now();
+  const entryId='entry_'+Date.now();
+  await dbSet('results/'+CU.uid+'/'+entryId, data);
+  alert('Results saved for '+formatDate(dateVal)+'!');
+  loadResultsHistory();
+}
 
-function initResultsPage(){const tag=document.getElementById('resultsAthleteTag');if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}if(isAdmin){document.getElementById('btnSaveResults').style.display='none';}else{// Load saved results
-dbGet('results/'+CU.uid).then(snap=>{if(snap.val())loadResults(snap.val());});}}
+function formatDate(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(dateStr+'T12:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+
+async function loadResultsHistory(){
+  if(!CU||isAdmin)return;
+  const snap=await dbGet('results/'+CU.uid);
+  const raw=snap.val()||{};
+  // Support both old flat format and new history format
+  resultsHistory=Object.entries(raw)
+    .filter(([k])=>k.startsWith('entry_'))
+    .map(([k,v])=>({id:k,...v,dateLabel:formatDate(v.date)}))
+    .sort((a,b)=>new Date(a.date)-new Date(b.date));
+  renderHistoryBar();
+}
+
+function renderHistoryBar(){
+  const bar=document.getElementById('resultsHistoryBar');
+  const list=document.getElementById('resultsHistoryList');
+  if(!resultsHistory.length){bar.style.display='none';return;}
+  bar.style.display='block';
+  list.innerHTML=resultsHistory.map((e,i)=>`
+    <button onclick="loadEntryIntoForm('${e.id}')" style="padding:5px 11px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;" onmouseover="this.style.background='rgba(201,168,76,0.1)';this.style.color='var(--gold-l)'" onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='rgba(255,255,255,0.55)'">
+      ${e.dateLabel||'Entry '+(i+1)}
+    </button>
+  `).join('');
+}
+
+function loadEntryIntoForm(entryId){
+  const entry=resultsHistory.find(e=>e.id===entryId);
+  if(!entry)return;
+  RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el)el.value=entry[f]||'';});
+  if(entry.date)document.getElementById('resultsDate').value=entry.date;
+  recalcAllStds();
+}
+
+function clearResultsForm(){
+  RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el)el.value='';});
+  document.getElementById('resultsDate').value='';
+  // Clear all std badges
+  document.querySelectorAll('.std-badge').forEach(el=>{el.className='std-badge';el.textContent='—';});
+}
+
+function recalcAllStds(){
+  ['400m','200im'].forEach(calcSwimStd);
+  calcHypoxicStd();
+  calcTimeStd('squat',120,90,0);
+  calcTimeStd('vsit',180,150,0);
+  calcTimeStd('glute',180,150,0);
+  calcRepStd('pressup',30,20);
+  calcScullStd();
+  calcBridgeStd();
+  calcLegExtStd();
+  calcFeetExtStd();
+}
+
+function initResultsPage(){
+  const tag=document.getElementById('resultsAthleteTag');
+  if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}
+  if(isAdmin){
+    document.getElementById('btnSaveResults').style.display='none';
+  } else {
+    // Set default date to today
+    document.getElementById('resultsDate').value=new Date().toISOString().split('T')[0];
+    loadResultsHistory();
+  }
+}
+
+// ── PROGRESS CHARTS ────────────────────────────────────────────────────────
+const CHART_TESTS = [
+  {key:'400m',   label:'400m Timed Swim',          unit:'time', gold:300, amber:320, lower_is_better:true},
+  {key:'200im',  label:'200m IM Kick',              unit:'time', gold:215, amber:230, lower_is_better:true},
+  {key:'hyp',    label:'150m Hypoxic (worst set)',  unit:'time', gold:120, amber:130, lower_is_better:true},
+  {key:'squat',  label:'Jumping Squat + Wall Sit',  unit:'time', gold:120, amber:90,  lower_is_better:false},
+  {key:'vsit',   label:'V-Sit + Plank Hold',        unit:'time', gold:180, amber:150, lower_is_better:false},
+  {key:'pressup',label:'Narrow Press-Ups',          unit:'reps', gold:30,  amber:20,  lower_is_better:false},
+  {key:'glute',  label:'Single Leg Glute Bridge',   unit:'time', gold:180, amber:150, lower_is_better:false},
+  {key:'scull',  label:'Support Sculls Total',      unit:'reps', gold:250, amber:230, lower_is_better:false},
+  {key:'bridge', label:'Bridge',                    unit:'cm',   gold:10,  amber:20,  lower_is_better:true},
+  {key:'legext', label:'Leg Extension',             unit:'cm',   gold:5,   amber:2,   lower_is_better:false},
+  {key:'feetext',label:'Feet Extension',            unit:'cm',   gold:3,   amber:6,   lower_is_better:true},
+];
+
+let activeProgressFilter = 'all';
+
+function getChartValue(entry, key){
+  if(key==='400m')   return parseTime(entry['400m_time']||'');
+  if(key==='200im')  return parseTime(entry['200im_time']||'');
+  if(key==='hyp'){const t1=parseTime(entry.hyp1_time||''),t2=parseTime(entry.hyp2_time||'');return(t1&&t2)?Math.max(t1,t2):null;}
+  if(key==='squat')  return parseTime(entry.squat_time||'');
+  if(key==='vsit')   return parseTime(entry.vsit_time||'');
+  if(key==='pressup')return parseInt(entry.pressup_reps||'')||null;
+  if(key==='glute')  return parseTime(entry.glute_time||'');
+  if(key==='scull'){const s1=parseInt(entry.scull1||0)||0,s2=parseInt(entry.scull2||0)||0;return(s1||s2)?s1+s2:null;}
+  if(key==='bridge') return parseFloat(entry.bridge_cm||'')||null;
+  if(key==='legext') return parseFloat(entry.legext_cm||'')||null;
+  if(key==='feetext')return parseFloat(entry.feetext_cm||'')||null;
+  return null;
+}
+
+function formatChartValue(val, unit){
+  if(val===null||val===undefined)return '—';
+  if(unit==='time'){const m=Math.floor(val/60),s=Math.round(val%60);return m+':'+(s<10?'0':'')+s;}
+  if(unit==='cm') return val+'cm';
+  return val+'';
+}
+
+function getStdForValue(val, meta){
+  if(val===null)return null;
+  if(meta.lower_is_better){
+    if(val<=meta.gold)return 'gold';
+    if(val<=meta.amber)return 'amber';
+    return 'red';
+  } else {
+    if(val>=meta.gold)return 'gold';
+    if(val>=meta.amber)return 'amber';
+    return 'red';
+  }
+}
+
+function initProgressPage(){
+  const tag=document.getElementById('progressAthleteTag');
+  if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}
+  if(!resultsHistory.length){
+    // Try loading if not yet loaded
+    loadResultsHistory().then(()=>renderProgressCharts());
+    return;
+  }
+  renderProgressCharts();
+}
+
+function renderProgressCharts(){
+  const noData=document.getElementById('progressNoData');
+  const chartsDiv=document.getElementById('progressCharts');
+  const filtersDiv=document.getElementById('progressFilters');
+  const grid=document.getElementById('progressChartsGrid');
+
+  if(!resultsHistory.length){noData.style.display='block';chartsDiv.style.display='none';return;}
+  noData.style.display='none';chartsDiv.style.display='block';
+
+  // Filter buttons
+  const cats=['all','Speed Swimming','Strength & Land','Flexibility'];
+  const catKeys={
+    'Speed Swimming':['400m','200im','hyp'],
+    'Strength & Land':['squat','vsit','pressup','glute','scull'],
+    'Flexibility':['bridge','legext','feetext'],
+  };
+  filtersDiv.innerHTML=cats.map(c=>`
+    <button class="prog-filter-btn${activeProgressFilter===c?' active':''}" onclick="setProgressFilter('${c}')">${c==='all'?'All Tests':c}</button>
+  `).join('');
+
+  // Render charts
+  const testsToShow = activeProgressFilter==='all' ? CHART_TESTS :
+    CHART_TESTS.filter(t=>catKeys[activeProgressFilter]?.includes(t.key));
+
+  grid.innerHTML = testsToShow.map(meta=>{
+    const points = resultsHistory
+      .map(e=>({date:e.dateLabel, val:getChartValue(e,meta.key), raw:e.date}))
+      .filter(p=>p.val!==null);
+
+    if(!points.length){
+      return `<div class="prog-chart-card">
+        <div class="prog-chart-title">${meta.label}</div>
+        <div class="prog-no-chart">No data recorded yet</div>
+      </div>`;
+    }
+
+    return `<div class="prog-chart-card">
+      <div class="prog-chart-title">${meta.label}</div>
+      <div class="prog-chart-subtitle">${points.length} submission${points.length!==1?'s':''} · Latest: ${formatChartValue(points[points.length-1].val, meta.unit)}</div>
+      <div class="prog-chart-wrap">
+        ${renderSVGChart(points, meta)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setProgressFilter(cat){
+  activeProgressFilter=cat;
+  renderProgressCharts();
+}
+
+function renderSVGChart(points, meta){
+  const W=400, H=140, PAD={top:12,right:16,bottom:32,left:44};
+  const cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
+  const vals=points.map(p=>p.val);
+  let minV=Math.min(...vals), maxV=Math.max(...vals);
+  // Add padding around range
+  const range=maxV-minV||1;
+  minV=minV-range*0.15; maxV=maxV+range*0.15;
+  const xS=i=>(points.length===1?cW/2:i/(points.length-1)*cW)+PAD.left;
+  const yS=v=>PAD.top+cH-(((v-minV)/(maxV-minV))*cH);
+
+  // Gold/amber band lines
+  const goldY=yS(meta.gold); const amberY=yS(meta.amber);
+  const bands=`
+    <line x1="${PAD.left}" y1="${Math.max(PAD.top,Math.min(H-PAD.bottom,goldY))}" x2="${W-PAD.right}" y2="${Math.max(PAD.top,Math.min(H-PAD.bottom,goldY))}" stroke="rgba(201,168,76,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="${PAD.left}" y1="${Math.max(PAD.top,Math.min(H-PAD.bottom,amberY))}" x2="${W-PAD.right}" y2="${Math.max(PAD.top,Math.min(H-PAD.bottom,amberY))}" stroke="rgba(224,140,50,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="${W-PAD.right+2}" y="${Math.max(PAD.top+8,Math.min(H-PAD.bottom,goldY)+4)}" fill="rgba(201,168,76,0.5)" font-size="8" font-family="DM Mono,monospace">Gold</text>
+    <text x="${W-PAD.right+2}" y="${Math.max(PAD.top+8,Math.min(H-PAD.bottom,amberY)+4)}" fill="rgba(224,140,50,0.4)" font-size="8" font-family="DM Mono,monospace">Amb</text>
+  `;
+
+  // Line path
+  const linePts=points.map((p,i)=>`${i===0?'M':'L'}${xS(i).toFixed(1)},${yS(p.val).toFixed(1)}`).join(' ');
+  // Fill path
+  const fillPts=linePts+` L${xS(points.length-1).toFixed(1)},${(H-PAD.bottom).toFixed(1)} L${xS(0).toFixed(1)},${(H-PAD.bottom).toFixed(1)} Z`;
+
+  // Data points with tooltips
+  const dots=points.map((p,i)=>{
+    const std=getStdForValue(p.val,meta);
+    const col=std==='gold'?'#c9a84c':std==='amber'?'#e07b35':'#e05c3a';
+    const valStr=formatChartValue(p.val,meta.unit);
+    return `<g>
+      <title>${p.date}: ${valStr}</title>
+      <circle cx="${xS(i).toFixed(1)}" cy="${yS(p.val).toFixed(1)}" r="5" fill="${col}" stroke="var(--mid)" stroke-width="2"/>
+      ${points.length<=6?`<text x="${xS(i).toFixed(1)}" y="${(yS(p.val)-8).toFixed(1)}" text-anchor="middle" fill="${col}" font-size="9" font-family="DM Mono,monospace">${valStr}</text>`:''}
+    </g>`;
+  }).join('');
+
+  // X axis labels (dates)
+  const xLabels=points.map((p,i)=>{
+    if(points.length>6&&i!==0&&i!==points.length-1&&i!==Math.floor((points.length-1)/2))return '';
+    const parts=(p.date||'').split(' ');
+    const lbl=parts.length>=2?parts[0]+' '+parts[1]:p.date||'';
+    return `<text x="${xS(i).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="DM Mono,monospace">${lbl}</text>`;
+  }).join('');
+
+  // Y axis label
+  const yLabel=`<text x="8" y="${(PAD.top+cH/2).toFixed(1)}" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-size="9" font-family="DM Mono,monospace" transform="rotate(-90,8,${(PAD.top+cH/2).toFixed(1)})">${meta.unit}</text>`;
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${bands}
+    <path d="${fillPts}" fill="rgba(78,174,209,0.07)"/>
+    <path d="${linePts}" fill="none" stroke="rgba(78,174,209,0.7)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}
+    ${xLabels}
+    ${yLabel}
+    <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${H-PAD.bottom}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <line x1="${PAD.left}" y1="${H-PAD.bottom}" x2="${W-PAD.right}" y2="${H-PAD.bottom}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  </svg>`;
+}
 
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
