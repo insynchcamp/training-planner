@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>In Synch Artistic Swimming — Training Planner</title>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getDatabase, ref, set, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqEX_bLCE3qi8zO6v_tu0ydL_y0n0h748",
+    authDomain: "insynch-planner.firebaseapp.com",
+    databaseURL: "https://insynch-planner-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "insynch-planner",
+    storageBucket: "insynch-planner.firebasestorage.app",
+    messagingSenderId: "642746022750",
+    appId: "1:642746022750:web:d9d2b4c43ab82189672dcf"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  window._auth = auth; window._db = db;
+  window._fbFns = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, ref, set, get, onValue, update };
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await get(ref(db, 'users/' + user.uid));
+      const profile = snap.val() || {};
+      window._currentUser = { uid: user.uid, email: user.email, name: profile.name || user.displayName || user.email, role: profile.role || 'athlete' };
+      window.onFirebaseLogin(window._currentUser);
+    } else {
+      window._currentUser = null;
+      window.onFirebaseLogout();
+    }
+  });
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+:root{--deep:#07111f;--mid:#0b1d33;--surface:#0d2748;--border:rgba(255,255,255,0.07);--foam:#e8f4f8;--gold:#c9a84c;--gold-l:#e8c96e;--teal:#2ec4b6;--alert:#e05c3a;--alert-bg:rgba(224,92,58,0.08);--ts:#7c6fcd;--tf:#4eaed1;--tc:#d4709a;--td:#45b88c;--tsp:#e07b35;--ti:#6b8fa8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;font-size:13px;}
+/* LOADING */
+#loadingScreen{position:fixed;inset:0;background:var(--deep);display:flex;align-items:center;justify-content:center;z-index:2000;flex-direction:column;gap:14px;}
+.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,0.07);border-top-color:var(--gold);border-radius:50%;animation:spin 0.85s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loadingScreen p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.22);}
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 55% 35%,#0e2a50 0%,var(--deep) 68%);padding:20px;overflow-y:auto;}
+.login-wrap{width:100%;max-width:420px;padding:10px 0;}
+.login-brand{text-align:center;margin-bottom:24px;}
+.login-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block;border:2px solid rgba(255,255,255,0.1);}
+.login-brand h1{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:#fff;line-height:1.2;}
+.login-brand p{margin-top:5px;font-size:12px;color:rgba(255,255,255,0.28);}
+.tsw{display:flex;background:rgba(0,0,0,0.3);border-radius:7px;padding:3px;margin-bottom:16px;}
+.tsw-btn{flex:1;padding:7px;border-radius:5px;border:none;background:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.38);cursor:pointer;transition:all 0.2s;}
+.tsw-btn.active{background:var(--surface);color:#fff;}
+.lform{display:flex;flex-direction:column;gap:10px;}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld label{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.fld input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color 0.2s;width:100%;}
+.fld input:focus{border-color:var(--gold);}
+.fld input::placeholder{color:rgba(255,255,255,0.17);}
+.err-msg{font-size:11px;color:#ff8c74;background:var(--alert-bg);border:1px solid rgba(224,92,58,0.25);border-radius:5px;padding:7px 10px;display:none;}
+.err-msg.show{display:block;}
+.btn-login{width:100%;padding:12px;background:var(--gold);color:var(--deep);border:none;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:800;font-size:14px;transition:background 0.2s;margin-top:2px;}
+.btn-login:hover{background:var(--gold-l);}
+.btn-login:disabled{opacity:0.5;cursor:not-allowed;}
+.login-hint{text-align:center;margin-top:12px;font-size:11px;color:rgba(255,255,255,0.17);}
+/* APP SHELL */
+#appScreen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+#appScreen.active{display:flex;}
+/* HEADER */
+.app-header{background:linear-gradient(135deg,#05101e 0%,var(--surface) 100%);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:54px;flex-shrink:0;position:relative;z-index:100;}
+.header-logo{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.14);flex-shrink:0;}
+.header-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;line-height:1.2;white-space:nowrap;}
+.header-title span{display:block;font-family:'DM Mono',monospace;font-size:8px;font-weight:400;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;}
+.nav-tabs{display:flex;gap:2px;background:rgba(0,0,0,0.22);border-radius:7px;padding:3px;}
+.nav-tab{padding:5px 11px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;color:rgba(255,255,255,0.38);border:none;background:none;font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.nav-tab:hover{color:rgba(255,255,255,0.72);}
+.nav-tab.active{background:var(--surface);color:#fff;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.user-chip{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:16px;font-size:11px;font-weight:600;}
+.user-chip.admin{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.28);color:var(--gold-l);}
+.user-chip.athlete{background:rgba(78,174,209,0.1);border:1px solid rgba(78,174,209,0.22);color:#7dd4f0;}
+.chip-dot{width:5px;height:5px;border-radius:50%;}
+.user-chip.admin .chip-dot{background:var(--gold);}
+.user-chip.athlete .chip-dot{background:var(--tf);}
+.hdr-btn{padding:5px 9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;color:rgba(255,255,255,0.38);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.75);}
+/* mobile menu button */
+.menu-btn{display:none;flex-direction:column;gap:4px;padding:6px;cursor:pointer;border:none;background:none;}
+.menu-btn span{display:block;width:18px;height:2px;background:rgba(255,255,255,0.6);border-radius:2px;transition:all 0.2s;}
+/* PROGRESS */
+.prog-banner{background:linear-gradient(90deg,var(--mid) 0%,#0b2240 100%);border-bottom:1px solid var(--border);padding:8px 16px;display:none;align-items:center;gap:12px;flex-shrink:0;}
+.prog-banner.show{display:flex;}
+.prog-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.32);white-space:nowrap;}
+.prog-track{flex:1;background:rgba(255,255,255,0.06);border-radius:10px;height:7px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width 0.6s ease;}
+.prog-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--gold-l);white-space:nowrap;min-width:38px;text-align:right;}
+.prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
+/* PAGES */
+.app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.page{display:none;flex:1;overflow-y:auto;height:100%;}
+.page.active{display:flex;flex-direction:column;}
+/* LIBRARY */
+.lib-layout{display:flex;flex:1;overflow:hidden;}
+.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
+.sdb{width:100%;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.46);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left;transition:all 0.15s;position:relative;}
+.sdb:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
+.sdb.active{background:rgba(255,255,255,0.05);color:#fff;}
+.sdb.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);border-radius:0 2px 2px 0;}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.scnt{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:10px;color:rgba(255,255,255,0.3);}
+.lib-main{flex:1;padding:18px 20px;overflow-y:auto;}
+.lib-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.lib-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
+.btn-add{padding:6px 12px;background:var(--gold);color:var(--deep);border:none;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px;transition:background 0.2s;white-space:nowrap;}
+.btn-add:hover{background:var(--gold-l);}
+.ro-note{padding:4px 9px;background:rgba(78,174,209,0.07);border:1px solid rgba(78,174,209,0.17);border-radius:4px;font-size:10px;color:rgba(78,174,209,0.65);font-family:'DM Mono',monospace;}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.wcard{background:var(--mid);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+.wcard:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,0.3);}
+.wcard-thumb{width:100%;height:120px;object-fit:cover;display:block;background:rgba(255,255,255,0.03);}
+.wcard-yt{width:100%;height:120px;position:relative;background:#000;cursor:pointer;}
+.wcard-yt img{width:100%;height:100%;object-fit:cover;}
+.yt-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);}
+.yt-play{width:36px;height:36px;background:rgba(255,0,0,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.wcard-none{width:100%;height:48px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.1);font-size:10px;font-family:'DM Mono',monospace;}
+.wcard-body{padding:10px 12px 12px;}
+.wcard-name{font-weight:600;font-size:13px;color:#fff;margin-bottom:3px;line-height:1.3;}
+.wcard-desc{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.wcard-meta{display:flex;gap:6px;align-items:center;}
+.wcard-link{font-size:10px;color:#4ea6e8;text-decoration:none;font-family:'DM Mono',monospace;}
+.wcard-acts{margin-left:auto;display:flex;gap:3px;}
+.ibtn{width:24px;height:24px;border-radius:4px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.42);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s;}
+.ibtn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.ibtn.del:hover{background:rgba(224,92,58,0.18);color:var(--alert);border-color:var(--alert);}
+.empty-st{grid-column:1/-1;text-align:center;padding:44px 20px;color:rgba(255,255,255,0.15);}
+.empty-st p{font-size:13px;margin-top:8px;}
+/* MODALS */
+.bkdrop{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;display:none;align-items:center;justify-content:center;padding:16px;}
+.bkdrop.open{display:flex;}
+.modal{background:#0f1e35;border:1px solid rgba(255,255,255,0.1);border-radius:12px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px;}
+.modal h3{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff;margin-bottom:14px;}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:10px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase;}
+.fg input,.fg textarea,.fg select{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;padding:8px 11px;outline:none;transition:border-color 0.2s;appearance:none;}
+.fg textarea{resize:vertical;min-height:70px;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--gold);}
+.fg select option{background:#1a3050;}
+.mtabs{display:flex;gap:3px;background:rgba(0,0,0,0.3);border-radius:5px;padding:3px;margin-bottom:8px;}
+.mt{padding:4px 10px;border-radius:4px;border:none;background:none;color:rgba(255,255,255,0.36);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.mt.active{background:var(--surface);color:#fff;}
+.mp{display:none;}.mp.active{display:block;}
+.dz{border:2px dashed rgba(255,255,255,0.1);border-radius:7px;padding:18px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.dz:hover,.dz.ov{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.dz p{font-size:12px;color:rgba(255,255,255,0.3);}
+.dz small{font-size:10px;color:rgba(255,255,255,0.15);margin-top:3px;display:block;}
+.dz input{display:none;}
+.iprev{width:100%;max-height:130px;object-fit:cover;border-radius:5px;margin-top:6px;display:none;}
+.macts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);}
+.btn-cancel{padding:6px 12px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.48);border:1px solid rgba(255,255,255,0.09);border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;}
+.btn-save{padding:6px 14px;background:var(--gold);color:var(--deep);border:none;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;}
+.btn-save:hover{background:var(--gold-l);}
+.ferr{font-size:11px;color:#ff8c74;margin-top:4px;display:none;}
+.ferr.show{display:block;}
+/* ATHLETES TABLE */
+.ath-tbl{width:100%;border-collapse:collapse;}
+.ath-tbl th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.26);padding:7px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.ath-tbl td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;vertical-align:middle;}
+.pm{width:80px;background:rgba(255,255,255,0.07);border-radius:6px;height:5px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.pmf{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:6px;}
+/* PLANNER */
+.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;}
+.wtab{padding:4px 11px;border-radius:18px;cursor:pointer;border:1px solid transparent;font-size:11px;color:rgba(255,255,255,0.36);display:flex;align-items:center;gap:4px;transition:all 0.15s;font-weight:500;white-space:nowrap;flex-shrink:0;}
+.wtab:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
+.wtab.active{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.28);color:var(--gold-l);}
+.wtab.done{background:rgba(46,196,182,0.08);border-color:rgba(46,196,182,0.24);color:#5de3d9;}
+.wdot{width:5px;height:5px;border-radius:50%;background:var(--alert);display:none;}
+.wtab.warn .wdot{display:block;}
+.wchk{font-size:9px;display:none;}
+.wtab.done .wchk{display:inline;}
+.plan-body{flex:1;overflow-y:auto;padding:14px 16px 80px;-webkit-overflow-scrolling:touch;}
+.wkp{display:none;}.wkp.active{display:block;}
+.wkh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.wkt{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
+/* WEEKLY REFLECTION */
+.refl-box{background:rgba(46,196,182,0.05);border:1px solid rgba(46,196,182,0.18);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+.refl-box h4{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(46,196,182,0.7);margin-bottom:10px;}
+.refl-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.refl-field label{display:block;font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:3px;}
+.refl-field textarea,.refl-field select{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:11px;padding:6px 8px;outline:none;resize:none;appearance:none;}
+.refl-field textarea:focus,.refl-field select:focus{border-color:rgba(46,196,182,0.4);}
+.refl-field select option{background:#1a3050;}
+.refl-save-btn{padding:5px 12px;background:rgba(46,196,182,0.15);border:1px solid rgba(46,196,182,0.3);border-radius:4px;color:#5de3d9;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.refl-save-btn:hover{background:rgba(46,196,182,0.25);}
+.refl-saved{font-size:10px;color:rgba(46,196,182,0.6);margin-left:8px;display:none;}
+.refl-saved.show{display:inline;}
+/* WEEK SUMMARY */
+.wksum{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.tcnt{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:3px 7px;font-size:10px;font-family:'DM Mono',monospace;}
+.tdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.tcnt.over{background:rgba(224,92,58,0.09);border-color:rgba(224,92,58,0.3);color:#ff8c74;}
+.warnbox{background:var(--alert-bg);border:1px solid rgba(224,92,58,0.28);border-radius:5px;padding:7px 11px;margin-bottom:8px;display:none;}
+.warnbox.show{display:block;}
+.warnbox strong{color:var(--alert);font-size:11px;display:block;margin-bottom:3px;}
+.warnbox ul{list-style:none;font-size:10px;color:#c0392b;}
+.warnbox ul li::before{content:"&#x26A0; ";}
+/* DAYS GRID */
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.dcard{background:var(--mid);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color 0.3s;display:flex;flex-direction:column;}
+.dcard.sunday{background:rgba(107,143,168,0.07);border-color:rgba(107,143,168,0.15);}
+.dcard.completed{border-color:rgba(46,196,182,0.33);background:rgba(46,196,182,0.04);}
+.dcard.rest-day{border-color:rgba(224,92,58,0.3);background:rgba(224,92,58,0.04);}
+.dcard.sick-day{border-color:rgba(201,168,76,0.3);background:rgba(201,168,76,0.04);}
+.dh{padding:6px 8px 5px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;}
+.dn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.55);}
+.dc{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.17);}
+.dss{padding:6px;display:flex;flex-direction:column;gap:5px;flex:1;}
+.slot{background:rgba(0,0,0,0.18);border-radius:5px;padding:6px 7px;border:1px solid rgba(255,255,255,0.04);}
+.slbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.19);margin-bottom:4px;}
+select.tsel,select.wsel{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:4px;color:rgba(255,255,255,0.6);font-family:'Inter',sans-serif;font-size:10px;padding:4px 18px 4px 6px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.28)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;transition:border-color 0.2s;margin-bottom:3px;}
+select option{background:#1a3050;color:#fff;}
+.vbtn{display:none;width:100%;padding:3px 6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;color:rgba(255,255,255,0.36);font-size:9px;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;transition:all 0.15s;margin-top:1px;}
+.vbtn:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.72);}
+.vbtn.show{display:block;}
+/* SESSION NOTES */
+.snote-wrap{padding:4px 6px 6px;}
+.snote{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:rgba(255,255,255,0.6);font-family:'Inter',sans-serif;font-size:10px;padding:5px 7px;outline:none;resize:none;height:46px;transition:border-color 0.2s;line-height:1.4;}
+.snote:focus{border-color:rgba(201,168,76,0.4);}
+.snote::placeholder{color:rgba(255,255,255,0.18);}
+/* DAY BOTTOM ACTIONS */
+.day-actions{padding:5px 6px 6px;display:flex;flex-direction:column;gap:4px;}
+.dchk-btn{display:flex;align-items:center;gap:4px;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.03);cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;color:rgba(255,255,255,0.32);transition:all 0.2s;width:100%;justify-content:center;}
+.dchk-btn:hover{border-color:rgba(46,196,182,0.38);color:rgba(46,196,182,0.75);background:rgba(46,196,182,0.05);}
+.dchk-btn.done{background:rgba(46,196,182,0.1);border-color:rgba(46,196,182,0.38);color:#5de3d9;}
+.dci{font-size:11px;}
+.flag-row{display:flex;gap:3px;}
+.flag-btn{flex:1;padding:3px 4px;border-radius:3px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;color:rgba(255,255,255,0.28);transition:all 0.15s;text-align:center;}
+.flag-btn:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);}
+.flag-btn.rest.active{background:rgba(224,92,58,0.15);border-color:rgba(224,92,58,0.4);color:#ff8c74;}
+.flag-btn.sick.active{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.35);color:var(--gold-l);}
+/* DAY STATUS BADGE */
+.day-status-badge{padding:2px 6px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;display:none;text-align:center;margin:0 6px 4px;}
+.day-status-badge.rest{display:block;background:rgba(224,92,58,0.15);color:#ff8c74;border:1px solid rgba(224,92,58,0.3);}
+.day-status-badge.sick{display:block;background:rgba(201,168,76,0.1);color:var(--gold-l);border:1px solid rgba(201,168,76,0.25);}
+/* POPOVER */
+.pop{position:fixed;z-index:400;background:#0f1e35;border:1px solid rgba(255,255,255,0.12);border-radius:10px;width:290px;box-shadow:0 18px 55px rgba(0,0,0,0.5);overflow:hidden;display:none;}
+.pop.open{display:block;}
+.pop-media{width:100%;height:145px;object-fit:cover;display:block;background:rgba(255,255,255,0.03);}
+.pop-yt{width:100%;height:145px;}
+.pop-yt iframe{width:100%;height:100%;border:none;}
+.pop-body{padding:11px 13px 13px;}
+.pop-type{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.pop-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:5px;}
+.pop-desc{font-size:11px;color:rgba(255,255,255,0.46);line-height:1.55;margin-bottom:7px;}
+.pop-link{font-size:10px;color:#4ea6e8;text-decoration:none;font-family:'DM Mono',monospace;}
+.pop-close{position:absolute;top:6px;right:6px;width:21px;height:21px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;}
+/* FAB */
+.fab{position:fixed;bottom:16px;right:16px;display:flex;gap:7px;z-index:300;}
+.fb{padding:8px 13px;border-radius:6px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;transition:all 0.15s;}
+.fb-p{background:var(--gold);color:var(--deep);}
+.fb-p:hover{background:var(--gold-l);}
+.fb-g{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.62);border:1px solid rgba(255,255,255,0.1);}
+.fb-g:hover{background:rgba(255,255,255,0.11);}
+/* MOBILE NAV DRAWER */
+.mob-drawer{position:fixed;top:54px;left:0;right:0;background:#0d2748;border-bottom:1px solid var(--border);z-index:500;display:none;flex-direction:column;padding:8px 0;}
+.mob-drawer.open{display:flex;}
+.mob-nav-item{padding:12px 20px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.6);cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;text-align:left;width:100%;}
+.mob-nav-item:hover,.mob-nav-item.active{color:#fff;background:rgba(255,255,255,0.05);}
+.mob-nav-item.active{color:var(--gold-l);}
+/* MOBILE */
+@media(max-width:768px){
+  .header-title span{display:none;}
+  .header-title{font-size:12px;}
+  .nav-tabs{display:none;}
+  .menu-btn{display:flex;}
+  .user-chip span{display:none;}
+  .hdr-btn{font-size:9px;padding:4px 7px;}
+  .lib-sb{display:none;}
+  .lib-layout{flex-direction:column;}
+  .dgrid{grid-template-columns:1fr 1fr;}
+  .refl-row{grid-template-columns:1fr;}
+  .prog-days{display:none;}
+  .plan-body{padding:12px 10px 100px;}
+  .lib-main{padding:12px;}
+  .fab{flex-direction:column;align-items:flex-end;bottom:12px;right:12px;}
+}
+@media(max-width:480px){
+  .dgrid{grid-template-columns:1fr;}
+  .wksum{gap:4px;}
+}
+/* PRINT */
+
+/* RESULTS PAGE */
+.results-section{margin-bottom:22px;}
+.results-section-hdr{padding:8px 14px;border-radius:6px 6px 0 0;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;letter-spacing:0.3px;}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-top:none;border-radius:0 0 6px 6px;padding:12px;}
+.result-card{background:var(--mid);border:1px solid var(--border);border-radius:8px;padding:12px 13px;}
+.rc-name{font-weight:700;font-size:12px;color:#fff;margin-bottom:4px;line-height:1.3;}
+.rc-desc{font-size:10px;color:rgba(255,255,255,0.35);line-height:1.5;margin-bottom:8px;}
+.rc-standards{display:flex;flex-direction:column;gap:2px;margin-bottom:8px;}
+.std{font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:3px;line-height:1.5;}
+.std.gold{background:rgba(201,168,76,0.12);color:var(--gold-l);border:1px solid rgba(201,168,76,0.25);}
+.std.amber{background:rgba(224,140,50,0.1);color:#e8a84c;border:1px solid rgba(224,140,50,0.25);}
+.std.red{background:rgba(224,92,58,0.1);color:#ff8c74;border:1px solid rgba(224,92,58,0.2);}
+.rc-inputs{display:flex;flex-direction:column;gap:6px;}
+.rc-input-row{display:flex;flex-direction:column;gap:2px;}
+.rc-input-row label{font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.32);}
+.rc-input-row input,.rc-input-row select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:4px;color:#fff;font-family:'Inter',sans-serif;font-size:11px;padding:5px 8px;outline:none;width:100%;appearance:none;transition:border-color 0.2s;}
+.rc-input-row input:focus,.rc-input-row select:focus{border-color:var(--gold);}
+.rc-input-row select option{background:#1a3050;}
+.std-badge{padding:4px 9px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;display:inline-block;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);}
+.std-badge.gold{background:rgba(201,168,76,0.15);color:var(--gold-l);border-color:rgba(201,168,76,0.35);}
+.std-badge.amber{background:rgba(224,140,50,0.12);color:#e8a84c;border-color:rgba(224,140,50,0.3);}
+.std-badge.red{background:rgba(224,92,58,0.12);color:#ff8c74;border-color:rgba(224,92,58,0.25);}
+@media(max-width:768px){.results-grid{grid-template-columns:1fr;}}
+
+
+/* ATHLETE SUB-TABS */
+.ath-subtab{padding:7px 14px;border-radius:5px 5px 0 0;border:1px solid transparent;border-bottom:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.03);transition:all 0.15s;margin-bottom:0;}
+.ath-subtab:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.06);}
+.ath-subtab.active{background:var(--surface);color:#fff;border-color:var(--border);}
+/* COACH RESULTS VIEW */
+.cr-athlete-block{background:var(--mid);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.cr-athlete-hdr{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);}
+.cr-athlete-hdr:hover{background:rgba(255,255,255,0.05);}
+.cr-athlete-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ts),var(--tf));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
+.cr-athlete-name{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;}
+.cr-athlete-email{font-size:11px;color:rgba(255,255,255,0.3);margin-top:1px;}
+.cr-chevron{margin-left:auto;font-size:12px;color:rgba(255,255,255,0.3);transition:transform 0.2s;}
+.cr-athlete-block.open .cr-chevron{transform:rotate(180deg);}
+.cr-summary-pills{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;margin-right:8px;}
+.cr-pill{padding:2px 8px;border-radius:10px;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.5px;}
+.cr-pill.gold{background:rgba(201,168,76,0.15);color:var(--gold-l);border:1px solid rgba(201,168,76,0.3);}
+.cr-pill.amber{background:rgba(224,140,50,0.12);color:#e8a84c;border:1px solid rgba(224,140,50,0.25);}
+.cr-pill.red{background:rgba(224,92,58,0.12);color:#ff8c74;border:1px solid rgba(224,92,58,0.2);}
+.cr-pill.none{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);}
+.cr-body{display:none;padding:14px 16px;}
+.cr-athlete-block.open .cr-body{display:block;}
+.cr-section{margin-bottom:14px;}
+.cr-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;}
+.cr-test{background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 10px;border:1px solid rgba(255,255,255,0.05);}
+.cr-test-name{font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:4px;line-height:1.3;}
+.cr-test-result{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.cr-test-value{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);}
+.cr-test-note{font-size:10px;color:rgba(255,255,255,0.28);margin-top:3px;font-style:italic;}
+.cr-no-results{padding:20px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2);}
+.cr-date{font-size:10px;color:rgba(255,255,255,0.22);font-family:'DM Mono',monospace;margin-left:auto;}
+@media(max-width:768px){.cr-grid{grid-template-columns:1fr 1fr;}.cr-summary-pills{display:none;}}
+
+@media print{
+  #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
+  html,body{height:auto;overflow:visible;}
+  #appScreen{display:block!important;height:auto;overflow:visible;}
+  .app-body,.page,.page.active{display:block!important;height:auto;overflow:visible;}
+  .plan-body{padding:0;overflow:visible;}
+  .wkp{display:block!important;page-break-after:always;}
+  .wkp:last-child{page-break-after:avoid;}
+  .dgrid{grid-template-columns:repeat(7,1fr)!important;gap:4px;}
+  .dcard{background:#f5f8fa!important;border:1px solid #ccc!important;break-inside:avoid;}
+  .dcard.completed{background:#f0fff8!important;border-color:#2ec4b6!important;}
+  .dcard.rest-day{background:#fff5f5!important;}
+  .dcard.sick-day{background:#fffbf0!important;}
+  select{color:#000!important;background:#fff!important;border:1px solid #ccc!important;-webkit-appearance:none;}
+  .slot{background:#fff!important;border:1px solid #eee!important;}
+  .slbl{color:#888!important;}
+  .dn,.dc{color:#555!important;}
+  .wkt{color:#000!important;}
+  .wksum,.warnbox{display:none!important;}
+  .refl-box{background:#f5f5f5!important;border:1px solid #ccc!important;color:#000;}
+  .refl-box h4,.refl-saved{color:#666!important;}
+  .refl-field textarea,.refl-field select{color:#000!important;background:#fff!important;border:1px solid #ccc!important;}
+  .print-header{display:block!important;}
+  .snote{color:#000!important;background:#fff!important;border:1px solid #eee!important;}
+  /* Workout detail in print */
+  .print-workout-detail{display:block!important;font-size:9px;color:#444;margin-top:3px;padding-top:3px;border-top:1px solid #eee;line-height:1.4;}
+}
+.print-header{display:none;}
+.print-workout-detail{display:none;}
+</style>
+</head>
+<body>
+<div id="loadingScreen">
+  <img src="https://i.ibb.co/4n7TcPdP/Front-in-synch.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.1)" alt="In Synch">
+  <div class="spin"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <img src="https://i.ibb.co/4n7TcPdP/Front-in-synch.png" class="login-logo" alt="In Synch">
+      <h1>In Synch Artistic Swimming</h1>
+      <p>Summer Training Camp — 8-Week Planner</p>
+    </div>
+    <div class="tsw">
+      <button class="tsw-btn active" id="tabSI" onclick="switchAuthTab('signin')">Sign In</button>
+      <button class="tsw-btn" id="tabSU" onclick="switchAuthTab('signup')">Create Account</button>
+    </div>
+    <div class="lform" id="siForm">
+      <div class="fld"><label>Email</label><input type="email" id="siEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+      <div class="fld"><label>Password</label><input type="password" id="siPw" placeholder="Password" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+      <div class="err-msg" id="siErr"></div>
+      <button class="btn-login" id="siBtn" onclick="doSignIn()">Sign In</button>
+    </div>
+    <div class="lform" id="suForm" style="display:none">
+      <div class="fld"><label>Your Name</label><input type="text" id="suName" placeholder="First name or full name"></div>
+      <div class="fld"><label>Email</label><input type="email" id="suEmail" placeholder="your@email.com"></div>
+      <div class="fld"><label>Password</label><input type="password" id="suPw" placeholder="Min 6 characters"></div>
+      <div class="err-msg" id="suErr"></div>
+      <button class="btn-login" id="suBtn" onclick="doSignUp()">Create Athlete Account</button>
+    </div>
+    <p class="login-hint">Coaches sign in with their admin email and password</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+  <header class="app-header">
+    <img src="https://i.ibb.co/4n7TcPdP/Front-in-synch.png" class="header-logo" alt="In Synch">
+    <div class="header-title"><span>In Synch Artistic Swimming</span>Training Planner</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('library')">Library</button>
+      <button class="nav-tab" onclick="showPage('planner')">My Plan</button>
+      <button class="nav-tab" id="navAth" onclick="showPage('athletes')" style="display:none">Athletes</button>
+      <button class="nav-tab" id="navResults" onclick="showPage('results')">Results</button>
+    </div>
+    <div class="header-right">
+      <div class="user-chip" id="uChip"><div class="chip-dot"></div><span id="uChipName"></span></div>
+      <button class="hdr-btn" id="btnPw" onclick="openModal('pwModal')" style="display:none">Password</button>
+      <button class="hdr-btn" onclick="doLogout()">Sign Out</button>
+      <button class="menu-btn" onclick="toggleMobMenu()" id="menuBtn"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <!-- Mobile drawer -->
+  <div class="mob-drawer" id="mobDrawer">
+    <button class="mob-nav-item active" onclick="showPage('library');toggleMobMenu()">📚 Library</button>
+    <button class="mob-nav-item" onclick="showPage('planner');toggleMobMenu()">📅 My Plan</button>
+    <button class="mob-nav-item" id="mobNavAth" onclick="showPage('athletes');toggleMobMenu()" style="display:none">👥 Athletes</button>
+    <button class="mob-nav-item" id="mobBtnPw" onclick="openModal('pwModal');toggleMobMenu()" style="display:none">🔑 Change Password</button>
+    <button class="mob-nav-item" onclick="doLogout()">Sign Out</button>
+  </div>
+  <!-- Progress bar -->
+  <div class="prog-banner" id="progBanner">
+    <span class="prog-lbl">Progress</span>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <span class="prog-pct" id="progPct">0%</span>
+    <span class="prog-days" id="progDays">0 / 56 days</span>
+  </div>
+  <div class="app-body">
+    <!-- LIBRARY PAGE -->
+    <div id="page-library" class="page active">
+      <div class="lib-layout">
+        <div class="lib-sb"><div id="sbEl"></div></div>
+        <div class="lib-main">
+          <div class="lib-hdr">
+            <h2 id="libTitle">All Workouts</h2>
+            <button class="btn-add" id="btnAddW" onclick="openAddW()" style="display:none">+ Add Workout</button>
+            <div class="ro-note" id="roNote" style="display:none">View only</div>
+          </div>
+          <div class="cgrid" id="cgrid"></div>
+        </div>
+      </div>
+    </div>
+    <!-- PLANNER PAGE -->
+    <div id="page-planner" class="page">
+      <div class="plan-wks" id="wkTabsEl"></div>
+      <div class="plan-body" id="planBodyEl"></div>
+    </div>
+    <!-- ATHLETES PAGE -->
+    <div id="page-athletes" class="page">
+      <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+        <!-- Sub-tabs -->
+        <div style="display:flex;align-items:center;gap:6px;padding:12px 20px 0;background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
+          <button class="ath-subtab active" id="subtab-accounts" onclick="switchAthTab('accounts')">&#128101; Accounts &amp; Progress</button>
+          <button class="ath-subtab" id="subtab-results" onclick="switchAthTab('results')">&#127942; Results by Athlete</button>
+          <button class="btn-add" onclick="openModal('createAthModal')" style="margin-left:auto;margin-bottom:8px">+ Create Account</button>
+        </div>
+        <!-- Accounts tab -->
+        <div id="ath-panel-accounts" style="flex:1;overflow-y:auto;padding:18px 20px;">
+          <div id="athTableWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p></div>
+        </div>
+        <!-- Results tab -->
+        <div id="ath-panel-results" style="flex:1;overflow-y:auto;padding:18px 20px;display:none;">
+          <div id="coachResultsWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- RESULTS PAGE -->
+    <div id="page-results" class="page">
+      <div style="padding:18px 20px;overflow-y:auto;flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+          <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
+          <div id="resultsAthleteTag" style="display:none;padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;"></div>
+          <button class="btn-add" id="btnSaveResults" onclick="saveResults()" style="margin-left:auto">Save Results</button>
+        </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:18px;">Track your GB National Youth/Junior Club Test scores. Gold &#127881; Amber &#127774; Red &#128308;</p>
+
+        <!-- TECHNICAL -->
+        <div class="results-section">
+          <div class="results-section-hdr" style="background:#c0392b;">&#127946; Technical</div>
+          <div class="results-grid">
+            <div class="result-card">
+              <div class="rc-name">Half Twist + Continuous 720 Spin x3</div>
+              <div class="rc-desc">3x half twist continuous spin turning left. 5 sculls before starting, 3 sculls per ¼, 1 scull pause before spin. Rest 30s between each.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 7.5 height, stationary 5 sculls, perfect levels</span><span class="std amber">Amber: 1 fault from Gold</span><span class="std red">Red: 2 faults from Gold</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Score</label><select id="r_twistspin_score" onchange="autoStd('twistspin')"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_twistspin_note" placeholder="e.g. height achieved, faults..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Vertical 30 Support Sculls x3</div>
+              <div class="rc-desc">3 verticals (facing left, forward, right). Hold for 30 sculls each, as high, still and stationary as possible. Rest 30s between each.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 7.5 height at start, no lower than 6.5 at end, minimal travel/deviation</span><span class="std amber">Amber: 1 fault from Gold</span><span class="std red">Red: 2 faults from Gold</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Score</label><select id="r_vertical_score" onchange="autoStd('vertical')"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_vertical_note" placeholder="e.g. height, travel issues..."></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPEED SWIMMING -->
+        <div class="results-section">
+          <div class="results-section-hdr" style="background:#1a6b9a;">&#128167; Speed Swimming</div>
+          <div class="results-grid">
+            <div class="result-card">
+              <div class="rc-name">400m Timed Swim</div>
+              <div class="rc-desc">25m pool, athletes start in water. Front crawl with turns. No nose clip.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 5:00 or faster</span><span class="std amber">Amber: 5:01–5:20</span><span class="std red">Red: 5:21 or slower</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Time (mm:ss)</label><input type="text" id="r_400m_time" placeholder="e.g. 4:55" oninput="calcSwimStd('400m')"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_400m_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_400m_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">200m IM Kick Timed Swim</div>
+              <div class="rc-desc">25m pool, start in water. No float/sculling. 2 lengths each: fly, back, breast, f/c kick. 10s penalty per breath on underwater lengths.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 3:35 or faster</span><span class="std amber">Amber: 3:36–3:50</span><span class="std red">Red: 3:51 or slower</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Time (mm:ss)</label><input type="text" id="r_200im_time" placeholder="e.g. 3:30" oninput="calcSwimStd('200im')"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_200im_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_200im_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">150m Hypoxic Test</div>
+              <div class="rc-desc">Juniors: fly/under/fc/fc/under/fly x2. Youth: under/fc/back/under/fly/fc x2. Start with dive if safe. Record time of first 6L, start 2nd set at 3min.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 2:00 or faster for both sets</span><span class="std amber">Amber: 2:01–2:10 for both</span><span class="std red">Red: 2:11 or slower</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Set 1 time</label><input type="text" id="r_hyp1_time" placeholder="e.g. 1:58" oninput="calcHypoxicStd()"></div>
+                <div class="rc-input-row"><label>Set 2 time</label><input type="text" id="r_hyp2_time" placeholder="e.g. 2:03" oninput="calcHypoxicStd()"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_hyp_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_hyp_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STRENGTH & LAND -->
+        <div class="results-section">
+          <div class="results-section-hdr" style="background:#2d6a4f;">&#127947; Strength &amp; Land</div>
+          <div class="results-grid">
+            <div class="result-card">
+              <div class="rc-name">10x Jumping Squats + Wall Sit Hold</div>
+              <div class="rc-desc">10 jumping squats at 65bpm hitting 90°, knees over toes. Immediately into wall sit: arms crossed, back flat, hips/knees at 90°. Time until failure or 2min cut-off.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 2:00 (cut-off)</span><span class="std amber">Amber: 1:30–1:59</span><span class="std red">Red: 1:29 or below</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Wall sit time (mm:ss)</label><input type="text" id="r_squat_time" placeholder="e.g. 2:00" oninput="calcTimeStd('squat',120,90,0)"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_squat_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_squat_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">10x V-Sit + Front Plank Hold</div>
+              <div class="rc-desc">10 V-sits at 65bpm, then immediately into plank. Body extended, elbows under shoulders, straight line head to feet. Hold until failure or 3min cut-off.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 3:00+</span><span class="std amber">Amber: 2:30–2:59</span><span class="std red">Red: 2:29 or below</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Plank time (mm:ss)</label><input type="text" id="r_vsit_time" placeholder="e.g. 3:00" oninput="calcTimeStd('vsit',180,150,0)"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_vsit_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_vsit_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Continuous Narrow Press-Ups</div>
+              <div class="rc-desc">Prone position, hands under shoulders, fingers forward, elbows to ceiling. 65bpm metronome. Chest to floor (fist distance max). Count perfect reps until failure.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 30+</span><span class="std amber">Amber: 20–29</span><span class="std red">Red: 19 or less</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Reps completed</label><input type="number" id="r_pressup_reps" placeholder="e.g. 28" min="0" oninput="calcRepStd('pressup',30,20)"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_pressup_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_pressup_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">10x Single Leg Glute Bridge + 45° Hold</div>
+              <div class="rc-desc">Supine, one knee bent. 10 pulses at 65bpm with vertical leg through full range. Then hold full hip extension (shoulder–hip–knee–foot in line) until failure or 3min.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 3:00 (cut-off)</span><span class="std amber">Amber: 2:30–2:59</span><span class="std red">Red: 2:29 or less</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Hold time (mm:ss)</label><input type="text" id="r_glute_time" placeholder="e.g. 3:00" oninput="calcTimeStd('glute',180,150,0)"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_glute_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_glute_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">2 x 1min Fast Support Sculls</div>
+              <div class="rc-desc">Back flat against wall. Medium resistance band. Arms 90°, firm hands, fingers tilted up. Only forearm moves, shoulder blades squeezed. Count sculls each minute, add together.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 250+ total</span><span class="std amber">Amber: 230–249</span><span class="std red">Red: 229 or less</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Set 1 sculls</label><input type="number" id="r_scull1" placeholder="e.g. 130" min="0" oninput="calcScullStd()"></div>
+                <div class="rc-input-row"><label>Set 2 sculls</label><input type="number" id="r_scull2" placeholder="e.g. 125" min="0" oninput="calcScullStd()"></div>
+                <div class="rc-input-row"><label>Total &amp; Standard</label><div class="std-badge" id="r_scull_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_scull_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLEXIBILITY -->
+        <div class="results-section">
+          <div class="results-section-hdr" style="background:#6b4c9a;">&#129338; Flexibility</div>
+          <div class="results-grid">
+            <div class="result-card">
+              <div class="rc-name">Left Leg Split</div>
+              <div class="rc-desc">Hip bones forward, shoulders over hips, arm extended back in line with rear knee. Both legs and feet fully extended. Hold 10s. Measure oversplit in cm.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 20cm oversplit front &amp; back simultaneously, crotch on floor, straight legs &amp; pointed feet</span><span class="std amber">Amber: 20cm front only</span><span class="std red">Red: Less than 20cm or not flat</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Score</label><select id="r_lsplit_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
+                <div class="rc-input-row"><label>Measurement (cm from floor)</label><input type="number" id="r_lsplit_cm" placeholder="0 = flat" min="-30" max="50"></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_lsplit_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Right Leg Split</div>
+              <div class="rc-desc">Same as left. Hip bones forward, shoulders over hips, arm extended back. Both legs extended, feet pointed. Hold 10s.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 20cm oversplit front &amp; back, crotch on floor</span><span class="std amber">Amber: 20cm front only</span><span class="std red">Red: Less than 20cm or not flat</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Score</label><select id="r_rsplit_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
+                <div class="rc-input-row"><label>Measurement (cm from floor)</label><input type="number" id="r_rsplit_cm" placeholder="0 = flat" min="-30" max="50"></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_rsplit_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Box Split</div>
+              <div class="rc-desc">Legs open 180° to sides, extended, on horizontal line. For max score: body upright, hands off floor. Measure pubic bone to floor if body forward.</div>
+              <div class="rc-standards"><span class="std gold">Gold: Flat, 180°, body upright, hands off floor, straight legs &amp; feet pointed</span><span class="std amber">Amber: 5cm or less, body forward, elbows on floor</span><span class="std red">Red: More than 5cm from floor</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Score</label><select id="r_box_score"><option value="">--</option><option value="gold">Gold</option><option value="amber">Amber</option><option value="red">Red</option></select></div>
+                <div class="rc-input-row"><label>Distance from floor (cm)</label><input type="number" id="r_box_cm" placeholder="0 = flat" min="0" max="50"></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_box_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Bridge</div>
+              <div class="rc-desc">Hands flat under shoulders (not further back), heels on floor. Measure cm between fingertips and back of heels. If fingers past heels = minus value.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 10cm or below (or minus)</span><span class="std amber">Amber: 11–20cm</span><span class="std red">Red: More than 20cm</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Measurement (cm)</label><input type="number" id="r_bridge_cm" placeholder="e.g. 8" min="-30" max="60" oninput="calcBridgeStd()"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_bridge_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_bridge_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Leg Extension</div>
+              <div class="rc-desc">L-sit, back flat against wall. Good posture, extended legs and feet. Lift heels. Knees remain on floor. Measure cm between heel and floor.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 5cm+ from floor</span><span class="std amber">Amber: 2–4.9cm</span><span class="std red">Red: 0–1.9cm</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Heel height (cm)</label><input type="number" id="r_legext_cm" placeholder="e.g. 6" step="0.1" min="0" max="20" oninput="calcLegExtStd()"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_legext_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_legext_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+            <div class="result-card">
+              <div class="rc-name">Feet Extension</div>
+              <div class="rc-desc">L-sit, back flat against wall, heels on floor, legs straight. Toes and feet fully extended/pointed. Measure cm from big toe to floor.</div>
+              <div class="rc-standards"><span class="std gold">Gold: 0–3cm</span><span class="std amber">Amber: 3.01–6cm</span><span class="std red">Red: More than 6cm</span></div>
+              <div class="rc-inputs">
+                <div class="rc-input-row"><label>Big toe to floor (cm)</label><input type="number" id="r_feetext_cm" placeholder="e.g. 2" step="0.1" min="0" max="20" oninput="calcFeetExtStd()"></div>
+                <div class="rc-input-row"><label>Standard</label><div class="std-badge" id="r_feetext_std">—</div></div>
+                <div class="rc-input-row"><label>Notes</label><input type="text" id="r_feetext_note" placeholder="Comments..."></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="height:30px"></div>
+      </div>
+    </div>
+
+</div>
+
+<!-- WORKOUT MODAL -->
+<div class="bkdrop" id="workoutModal">
+  <div class="modal">
+    <h3 id="wMTitle">Add Workout</h3>
+    <input type="hidden" id="editId">
+    <div class="fg"><label>Session Type</label><select id="fType"><option value="">Select type</option></select></div>
+    <div class="fg"><label>Workout Name</label><input type="text" id="fName" placeholder="e.g. Full Body Power Circuit"></div>
+    <div class="fg"><label>Description / Instructions</label><textarea id="fDesc" placeholder="Sets, reps, coaching notes..."></textarea></div>
+    <div class="fg">
+      <label>Media (optional)</label>
+      <div class="mtabs"><button class="mt active" onclick="switchMT('image')">Image</button><button class="mt" onclick="switchMT('youtube')">YouTube</button></div>
+      <div class="mp active" id="mpImg">
+        <div class="dz" id="dz" onclick="document.getElementById('fImg').click()" ondragover="dOv(event)" ondragleave="dLv()" ondrop="dDp(event)">
+          <p>Click or drag and drop</p><small>JPG, PNG — max 5MB</small>
+          <input type="file" id="fImg" accept="image/*" onchange="handleImg(event)">
+        </div>
+        <img id="imgPrev" class="iprev" alt="">
+      </div>
+      <div class="mp" id="mpYt"><input type="text" id="fYt" placeholder="YouTube URL e.g. https://youtu.be/abc123"><small style="color:rgba(255,255,255,0.16);font-size:10px;margin-top:3px;display:block">Paste any YouTube link</small></div>
+    </div>
+    <div class="macts"><button class="btn-cancel" onclick="closeModal('workoutModal')">Cancel</button><button class="btn-save" onclick="saveWorkout()">Save Workout</button></div>
+  </div>
+</div>
+<!-- CREATE ATHLETE MODAL -->
+<div class="bkdrop" id="createAthModal">
+  <div class="modal" style="max-width:370px">
+    <h3>Create Athlete Account</h3>
+    <div class="fg"><label>Name</label><input type="text" id="caName" placeholder="Full name"></div>
+    <div class="fg"><label>Email</label><input type="email" id="caEmail" placeholder="athlete@email.com"></div>
+    <div class="fg"><label>Password</label><input type="password" id="caPw" placeholder="Min 6 characters"></div>
+    <div class="ferr" id="caErr"></div>
+    <div class="macts"><button class="btn-cancel" onclick="closeModal('createAthModal')">Cancel</button><button class="btn-save" onclick="doCreateAth()">Create Account</button></div>
+  </div>
+</div>
+<!-- PASSWORD MODAL -->
+<div class="bkdrop" id="pwModal">
+  <div class="modal" style="max-width:340px">
+    <h3>Change Password</h3>
+    <div class="fg"><label>New Password</label><input type="password" id="pw1" placeholder="Min 6 characters"></div>
+    <div class="fg"><label>Confirm</label><input type="password" id="pw2" placeholder="Repeat password"></div>
+    <div class="ferr" id="pwErr"></div>
+    <div class="macts"><button class="btn-cancel" onclick="closeModal('pwModal')">Cancel</button><button class="btn-save" onclick="doChangePw()">Update</button></div>
+  </div>
+</div>
+<!-- POPOVER -->
+<div class="pop" id="pop">
+  <button class="pop-close" onclick="closePop()">&#x2715;</button>
+  <div id="popMed"></div>
+  <div class="pop-body">
+    <div class="pop-type" id="popType"></div>
+    <div class="pop-name" id="popName"></div>
+    <div class="pop-desc" id="popDesc"></div>
+    <a class="pop-link" id="popLink" target="_blank" href="#">Open in YouTube</a>
+  </div>
+</div>
+<!-- FAB -->
+<div class="fab" id="fabEl" style="display:none">
+  <button class="fb fb-g" onclick="clearWeek()">Clear Week</button>
+  <button class="fb fb-p" onclick="exportPDF()">Export PDF</button>
+</div>
+
+<script>
+const ADMIN_EMAIL='insynch.camp@gmail.com';
+const TC={'Land Training - Strength':{key:'strength',color:'#7c6fcd',max:4},'Land Training - Flex & Extension':{key:'flex',color:'#4eaed1',max:4},'Choreography':{key:'choreo',color:'#d4709a',max:3},'Synchro Drills':{key:'drills',color:'#45b88c',max:4},'Speed Swimming':{key:'speed',color:'#e07b35',max:3},'Injury Prevention':{key:'injury',color:'#6b8fa8',max:null}};
+const TTYPES=Object.keys(TC).filter(t=>t!=='Injury Prevention');
+const ATYPES=Object.keys(TC);
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WEEKS=8,TOTD=56;
+let CU=null,isAdmin=false,library={},planData={},curLT=null,curWeek=1,curImg=null,curMT='image',unsub=null,unsubLib=null;
+
+function dbRef(p){return window._fbFns.ref(window._db,p);}
+function dbSet(p,v){return window._fbFns.set(dbRef(p),v);}
+function dbUpd(p,v){return window._fbFns.update(dbRef(p),v);}
+function dbGet(p){return window._fbFns.get(dbRef(p));}
+function dbOn(p,cb){return window._fbFns.onValue(dbRef(p),s=>cb(s.val()));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ytId(u){const m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);return m?m[1]:u.slice(-11);}
+function showErr(el,m){el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+function authErr(c){const m={'auth/invalid-email':'Invalid email.','auth/user-not-found':'No account found.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'Email already in use.','auth/weak-password':'Password must be 6+ characters.','auth/invalid-credential':'Incorrect email or password.','auth/too-many-requests':'Too many attempts. Try later.'};return m[c]||'Error. Please try again.';}
+
+// AUTH
+window.onFirebaseLogin=async function(user){CU=user;isAdmin=(user.email===ADMIN_EMAIL||user.role==='admin');document.getElementById('loadingScreen').style.display='none';document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='flex';applyRole();subLib();if(!isAdmin){subPlan();showPage('planner');}else showPage('library');};
+window.onFirebaseLogout=function(){CU=null;isAdmin=false;if(unsub){unsub();unsub=null;}if(unsubLib){unsubLib();unsubLib=null;}document.getElementById('loadingScreen').style.display='none';document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';};
+function switchAuthTab(t){document.getElementById('tabSI').classList.toggle('active',t==='signin');document.getElementById('tabSU').classList.toggle('active',t==='signup');document.getElementById('siForm').style.display=t==='signin'?'flex':'none';document.getElementById('suForm').style.display=t==='signup'?'flex':'none';}
+async function doSignIn(){const e=document.getElementById('siEmail').value.trim(),p=document.getElementById('siPw').value,err=document.getElementById('siErr'),btn=document.getElementById('siBtn');if(!e||!p){showErr(err,'Please enter email and password.');return;}btn.disabled=true;btn.textContent='Signing in...';try{await window._fbFns.signInWithEmailAndPassword(window._auth,e,p);}catch(ex){showErr(err,authErr(ex.code));btn.disabled=false;btn.textContent='Sign In';}}
+async function doSignUp(){const n=document.getElementById('suName').value.trim(),e=document.getElementById('suEmail').value.trim(),p=document.getElementById('suPw').value,err=document.getElementById('suErr'),btn=document.getElementById('suBtn');if(!n||!e||!p){showErr(err,'Please fill in all fields.');return;}if(p.length<6){showErr(err,'Password must be 6+ characters.');return;}btn.disabled=true;btn.textContent='Creating...';try{const c=await window._fbFns.createUserWithEmailAndPassword(window._auth,e,p);await window._fbFns.updateProfile(c.user,{displayName:n});await dbSet('users/'+c.user.uid,{name:n,email:e,role:'athlete',createdAt:Date.now()});}catch(ex){showErr(err,authErr(ex.code));btn.disabled=false;btn.textContent='Create Athlete Account';}}
+async function doLogout(){await window._fbFns.signOut(window._auth);}
+async function doCreateAth(){const n=document.getElementById('caName').value.trim(),e=document.getElementById('caEmail').value.trim(),p=document.getElementById('caPw').value,err=document.getElementById('caErr');if(!n||!e||!p){showErr(err,'Please fill all fields.');return;}if(p.length<6){showErr(err,'Password must be 6+ characters.');return;}try{const res=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+window._auth.app.options.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});const d=await res.json();if(d.error){showErr(err,d.error.message);return;}await dbSet('users/'+d.localId,{name:n,email:e,role:'athlete',createdAt:Date.now()});closeModal('createAthModal');['caName','caEmail','caPw'].forEach(id=>document.getElementById(id).value='');alert('Account created for '+n+'. They can sign in with: '+e);loadAthTable();}catch(ex){showErr(err,'Error: '+ex.message);}}
+async function doChangePw(){const p1=document.getElementById('pw1').value,p2=document.getElementById('pw2').value,err=document.getElementById('pwErr');if(p1.length<6){showErr(err,'Minimum 6 characters.');return;}if(p1!==p2){showErr(err,'Passwords do not match.');return;}try{await window._fbFns.updatePassword(window._auth.currentUser,p1);closeModal('pwModal');alert('Password updated.');}catch(ex){showErr(err,authErr(ex.code));}}
+
+function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
+
+function toggleMobMenu(){const d=document.getElementById('mobDrawer');d.classList.toggle('open');}
+document.addEventListener('click',e=>{const d=document.getElementById('mobDrawer');if(d.classList.contains('open')&&!e.target.closest('.mob-drawer')&&!e.target.closest('.menu-btn'))d.classList.remove('open');});
+
+// LIBRARY
+function subLib(){if(unsubLib)unsubLib();unsubLib=dbOn('library',data=>{library=data||{};if(isAdmin&&Object.keys(library).length===0)seedLib();buildSB();renderCards();refreshDrops();});}
+async function seedLib(){const defs=[{type:'Land Training - Strength',name:'Full Body Power Circuit',desc:'3 rounds: 10 squats, 10 push-ups, 10 bent-over rows, 30s plank. Rest 90s between rounds.'},{type:'Land Training - Strength',name:'Lower Body Strength',desc:'Back squat 4x6, Romanian deadlift 3x8, walking lunges 3x12 each leg, calf raises 4x15.'},{type:'Land Training - Flex & Extension',name:'Active Splits & Oversplits',desc:'Dynamic warm-up, PNF hamstring 3x30s each, oversplit with elevated foot 2x45s, hip flexor lunges.'},{type:'Choreography',name:'Routine Run-Through',desc:'Full routine from top. Film all runs. Focus on musical phrasing and entry timing. Minimum 3 clean runs.'},{type:'Synchro Drills',name:'Eggbeater Strength Drills',desc:'10x20s maximum height with 20s rest. Partner height comparison. 2min sustained height hold.'},{type:'Speed Swimming',name:'Sprint Intervals 10x25m',desc:'Warm up 400m easy. 10x25m on 1:00 max velocity. Cool-down 200m. Record split times.'},{type:'Injury Prevention',name:'Rotator Cuff & Shoulder Prehab',desc:'Theraband external rotation 3x15, prone T/Y/W 3x12, wall slides 2x15, sleeper stretch 3x30s each side.'},{type:'Injury Prevention',name:'Full Body Recovery Stretches',desc:'30-min guided stretching: hip flexors, hamstrings, thoracic spine, shoulder girdle, calves. 45-60s each.'}];const u={};defs.forEach(d=>{const id=uid();u[id]={id,...d,imageDataUrl:null,ytUrl:null};});await dbUpd('library',u);}
+function buildSB(){const el=document.getElementById('sbEl'),arr=Object.values(library);let h=`<button class="sdb${!curLT?' active':''}" style="--acc:var(--gold)" onclick="filterLib(null)"><div class="sdot" style="background:var(--gold)"></div>All Workouts<span class="scnt">${arr.length}</span></button>`;ATYPES.forEach(t=>{const c=TC[t],n=arr.filter(w=>w.type===t).length;h+=`<button class="sdb${curLT===t?' active':''}" style="--acc:${c.color}" onclick="filterLib('${t.replace(/'/g,"\\'")}')"><div class="sdot" style="background:${c.color}"></div>${t.replace('Land Training - ','')}<span class="scnt">${n}</span></button>`;});el.innerHTML=h;}
+function filterLib(t){curLT=t;buildSB();renderCards();document.getElementById('libTitle').textContent=t||'All Workouts';}
+function renderCards(){const g=document.getElementById('cgrid'),arr=Object.values(library).filter(w=>!curLT||w.type===curLT);if(!arr.length){g.innerHTML='<div class="empty-st"><p>No workouts yet</p><small>'+(isAdmin?'Click Add Workout to get started':'Your coach has not added workouts yet')+'</small></div>';return;}g.innerHTML=arr.map(w=>{const c=TC[w.type]||{};let med='';if(w.ytUrl){const v=ytId(w.ytUrl);med=`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)"><img src="https://img.youtube.com/vi/${v}/mqdefault.jpg" alt=""><div class="yt-ov"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div></div></div>`;}else if(w.imageDataUrl)med=`<img class="wcard-thumb" src="${w.imageDataUrl}" alt="">`;else med='<div class="wcard-none">NO MEDIA</div>';const aa=isAdmin?`<button class="ibtn" onclick="editW('${w.id}')" title="Edit">&#9998;</button><button class="ibtn del" onclick="delW('${w.id}')" title="Delete">&#128465;</button>`:'';return `<div class="wcard">${med}<div class="wcard-body"><div class="wcard-name">${esc(w.name)}</div>${w.desc?`<div class="wcard-desc">${esc(w.desc)}</div>`:''}<div class="wcard-meta"><div style="width:6px;height:6px;border-radius:50%;background:${c.color};flex-shrink:0"></div><span style="font-size:10px;color:rgba(255,255,255,0.24);font-family:'DM Mono',monospace">${w.type.replace('Land Training - ','')}</span><div class="wcard-acts">${w.ytUrl?`<a class="wcard-link" href="${esc(w.ytUrl)}" target="_blank">Watch</a>`:''}${aa}</div></div></div></div>`;}).join('');}
+
+// WORKOUT CRUD
+function populateFType(){const s=document.getElementById('fType');s.innerHTML='<option value="">Select type</option>'+ATYPES.map(t=>`<option value="${t}">${t}</option>`).join('');}
+function openAddW(){curImg=null;document.getElementById('wMTitle').textContent='Add Workout';document.getElementById('editId').value='';['fName','fDesc','fYt'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value=curLT||'';document.getElementById('imgPrev').style.display='none';switchMT('image');openModal('workoutModal');}
+function editW(id){const w=library[id];if(!w)return;curImg=w.imageDataUrl||null;document.getElementById('wMTitle').textContent='Edit Workout';document.getElementById('editId').value=id;document.getElementById('fType').value=w.type;document.getElementById('fName').value=w.name;document.getElementById('fDesc').value=w.desc||'';document.getElementById('fYt').value=w.ytUrl||'';if(w.imageDataUrl){document.getElementById('imgPrev').src=w.imageDataUrl;document.getElementById('imgPrev').style.display='block';switchMT('image');}else if(w.ytUrl)switchMT('youtube');else switchMT('image');openModal('workoutModal');}
+async function saveWorkout(){const t=document.getElementById('fType').value.trim(),n=document.getElementById('fName').value.trim(),d=document.getElementById('fDesc').value.trim(),yt=document.getElementById('fYt').value.trim();if(!t||!n){alert('Fill in type and name.');return;}const eid=document.getElementById('editId').value||uid();await dbSet('library/'+eid,{id:eid,type:t,name:n,desc:d,imageDataUrl:curMT==='image'?curImg:null,ytUrl:curMT==='youtube'?yt:null});closeModal('workoutModal');}
+async function delW(id){if(!confirm('Delete this workout?'))return;await dbSet('library/'+id,null);}
+function switchMT(t){curMT=t;document.querySelectorAll('.mt').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='image')||(i===1&&t==='youtube')));document.getElementById('mpImg').classList.toggle('active',t==='image');document.getElementById('mpYt').classList.toggle('active',t==='youtube');}
+function handleImg(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){alert('Max 5MB');return;}const r=new FileReader();r.onload=ev=>{curImg=ev.target.result;const p=document.getElementById('imgPrev');p.src=curImg;p.style.display='block';};r.readAsDataURL(f);}
+function dOv(e){e.preventDefault();document.getElementById('dz').classList.add('ov');}
+function dLv(){document.getElementById('dz').classList.remove('ov');}
+function dDp(e){e.preventDefault();dLv();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))handleImg({target:{files:[f]}});}
+
+// PLANNER
+function subPlan(){if(!CU)return;if(unsub){unsub();unsub=null;}unsub=dbOn('plans/'+CU.uid,data=>{planData=data||{};rebuildPlan();updateProg();});}
+
+function buildPlanShell(){const te=document.getElementById('wkTabsEl'),be=document.getElementById('planBodyEl');te.innerHTML='';be.innerHTML='';for(let w=1;w<=WEEKS;w++){const t=document.createElement('div');t.className='wtab'+(w===1?' active':'');t.id='pt'+w;t.innerHTML='Week '+w+' <span class="wdot"></span><span class="wchk">&#10003;</span>';const ww=w;t.onclick=()=>swWk(ww);te.appendChild(t);const p=document.createElement('div');p.className='wkp'+(w===1?' active':'');p.id='wk'+w;
+// Print header
+p.innerHTML='<div class="print-header" style="margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #ccc;"><img src="https://i.ibb.co/4n7TcPdP/Front-in-synch.png" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:10px;"><span style="font-family:Syne,sans-serif;font-weight:800;font-size:16px;">In Synch Artistic Swimming — Training Planner</span><span style="float:right;font-size:12px;color:#666;">Week '+w+' / '+WEEKS+'</span></div>'+
+'<div class="wkh"><div class="wkt">Week '+w+'</div></div><div class="wksum" id="ws'+w+'"></div><div class="warnbox" id="wb'+w+'"><strong>Weekly limits exceeded:</strong><ul id="wl'+w+'"></ul></div>'+
+// Weekly reflection
+'<div class="refl-box" id="refl-box-'+w+'" style="display:none"><h4>&#128203; Weekly Reflection — Week '+w+'</h4><div class="refl-row"><div class="refl-field"><label>How did the week feel overall?</label><select id="refl-feel-'+w+'" onchange="saveRefl('+w+')"><option value="">Select...</option><option value="great">&#127881; Great</option><option value="good">&#128522; Good</option><option value="tough">&#128550; Tough</option><option value="poor">&#128565; Poor</option></select></div><div class="refl-field"><label>RPE <span style="font-family:Inter,sans-serif;font-size:9px;color:rgba(255,255,255,0.35);font-weight:400;letter-spacing:0;text-transform:none;" title="Rate of Perceived Exertion: 1=very easy, 10=maximum effort">(Rate of Perceived Exertion: 1=easy, 10=max effort) &#9432;</span></label><select id="refl-rpe-'+w+'" onchange="saveRefl('+w+')"><option value="">Select...</option>'+[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('')+'</select></div></div><div class="refl-row"><div class="refl-field"><label>Highlight of the week</label><textarea id="refl-hi-'+w+'" rows="2" placeholder="Best moment or achievement..." onblur="saveRefl('+w+')"></textarea></div><div class="refl-field"><label>Notes for coach / anything to flag</label><textarea id="refl-note-'+w+'" rows="2" placeholder="Injury, fatigue, questions..." onblur="saveRefl('+w+')"></textarea></div></div><button class="refl-save-btn" onclick="saveRefl('+w+')">Save Reflection</button><span class="refl-saved" id="refl-saved-'+w+'">&#10003; Saved</span></div>'+
+'<div class="refl-locked" id="refl-locked-'+w+'" style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;margin-bottom:12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.25);">&#128274; Weekly reflection unlocks once all 7 days are marked complete or flagged</div>'+
+'<div class="dgrid" id="dg'+w+'"></div>';
+be.appendChild(p);buildDCs(w);}}
+
+function buildDCs(wk){const g=document.getElementById('dg'+wk);DAYS.forEach((day,di)=>{const isSun=di===6;const card=document.createElement('div');card.className='dcard'+(isSun?' sunday':'');card.id='dc'+wk+'_'+di;
+let sess='';
+if(isSun){const sid='s'+wk+'_'+di+'_0';sess='<div class="slot"><div class="slbl" style="color:var(--ti)">Injury Prevention</div>'+mkWS(sid,'Injury Prevention',wk)+'<button class="vbtn" id="vb'+sid+'" onclick="showPop(\''+sid+'\',event)">&#128065; View workout</button><div class="print-workout-detail" id="pwd-'+sid+'"></div></div>';}
+else{for(let s=0;s<2;s++){const sid='s'+wk+'_'+di+'_'+s;sess+='<div class="slot"><div class="slbl">Session '+(s+1)+'</div>'+mkTS(sid,wk)+mkWS(sid,'',wk)+'<button class="vbtn" id="vb'+sid+'" onclick="showPop(\''+sid+'\',event)">&#128065; View workout</button><div class="print-workout-detail" id="pwd-'+sid+'"></div></div>';}}
+
+card.innerHTML=
+'<div class="dh"><span class="dn">'+day+'</span><span class="dc">'+(isSun?'1':'2')+'x</span></div>'+
+'<div class="day-status-badge" id="dsb'+wk+'_'+di+'"></div>'+
+'<div class="dss">'+sess+'</div>'+
+'<div class="snote-wrap"><textarea class="snote" id="note'+wk+'_'+di+'" placeholder="Session notes..." onblur="saveNote('+wk+','+di+')"></textarea></div>'+
+'<div class="day-actions">'+
+'<button class="dchk-btn" id="chk'+wk+'_'+di+'" onclick="togDay('+wk+','+di+')"><span class="dci">&#9675;</span>&nbsp;Mark Complete</button>'+
+'<div class="flag-row">'+
+'<button class="flag-btn rest" id="rest'+wk+'_'+di+'" onclick="togFlag('+wk+','+di+',\'rest\')">&#128722; Rest Day</button>'+
+'<button class="flag-btn sick" id="sick'+wk+'_'+di+'" onclick="togFlag('+wk+','+di+',\'sick\')">&#129298; Sick Day</button>'+
+'</div></div>';
+g.appendChild(card);});}
+
+function mkTS(sid,wk){return '<select class="tsel" id="ts'+sid+'" data-wk="'+wk+'" onchange="onTC(\''+sid+'\','+wk+')"><option value="">Session type</option>'+TTYPES.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'</select>';}
+function mkWS(sid,ft,wk){const ws=ft?Object.values(library).filter(w=>w.type===ft):[];return '<select class="wsel" id="ws'+sid+'" data-wk="'+wk+'" data-ft="'+ft+'" '+(ft?'':'disabled')+' onchange="onWC(\''+sid+'\','+wk+')"><option value="">Choose workout</option>'+ws.map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('')+'</select>';}
+
+function rebuildPlan(){buildPlanShell();for(let w=1;w<=WEEKS;w++){for(let d=0;d<7;d++){const isSun=d===6,sess=isSun?1:2;for(let s=0;s<sess;s++){const sid='s'+w+'_'+d+'_'+s,key=w+'_'+d+'_'+s,sv=planData.selections&&planData.selections[key];if(!sv)continue;if(!isSun){const ts=document.getElementById('ts'+sid);if(ts&&sv.type){ts.value=sv.type;ts.style.borderColor=(TC[sv.type]&&TC[sv.type].color)||'';fillWS(sid,sv.type);}}const ws=document.getElementById('ws'+sid);if(ws&&sv.workout){ws.value=sv.workout;const t=ws.dataset.ft||(document.getElementById('ts'+sid)?document.getElementById('ts'+sid).value:'');ws.style.borderColor=(TC[t]&&TC[t].color)||'';const vb=document.getElementById('vb'+sid);if(vb)vb.classList.add('show');updPrintDetail(sid);}}
+// Notes
+const noteEl=document.getElementById('note'+w+'_'+d);if(noteEl&&planData.notes&&planData.notes[w+'_'+d])noteEl.value=planData.notes[w+'_'+d];
+// Flags & completion
+updDayUI(w,d,planData.completed&&planData.completed[w+'_'+d],planData.flags&&planData.flags[w+'_'+d]);}
+// Reflections
+if(planData.reflections&&planData.reflections[w]){const r=planData.reflections[w];['feel','rpe'].forEach(k=>{const el=document.getElementById('refl-'+k+'-'+w);if(el&&r[k])el.value=r[k];});['hi','note'].forEach(k=>{const el=document.getElementById('refl-'+k+'-'+w);if(el&&r[k])el.value=r[k];});}
+updWkSum(w);}};
+
+function fillWS(sid,type){const ws=document.getElementById('ws'+sid);if(!ws)return;ws.innerHTML='<option value="">Choose workout</option>'+Object.values(library).filter(w=>w.type===type).map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');ws.disabled=false;}
+function updPrintDetail(sid){const ws=document.getElementById('ws'+sid);if(!ws||!ws.value)return;const w=library[ws.value];const el=document.getElementById('pwd-'+sid);if(!el||!w)return;el.innerHTML=(w.desc?esc(w.desc):'')+(w.ytUrl?'<br><em>Video: '+esc(w.ytUrl)+'</em>':'');}
+function onTC(sid,wk){const ts=document.getElementById('ts'+sid),ws=document.getElementById('ws'+sid),t=ts.value;ts.style.borderColor=(TC[t]&&TC[t].color)||'';ws.innerHTML='<option value="">Choose workout</option>'+(t?Object.values(library).filter(w=>w.type===t).map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join(''):'');ws.disabled=!t;ws.style.borderColor='';document.getElementById('vb'+sid).classList.remove('show');saveSel(sid,wk,{type:t,workout:''});updWkSum(wk);}
+function onWC(sid,wk){const ws=document.getElementById('ws'+sid),ts=document.getElementById('ts'+sid),t=ws.dataset.ft||(ts?ts.value:'');ws.style.borderColor=(ws.value&&TC[t])?TC[t].color:'';document.getElementById('vb'+sid).classList.toggle('show',!!ws.value);saveSel(sid,wk,{type:t,workout:ws.value});updPrintDetail(sid);updWkSum(wk);}
+async function saveSel(sid,wk,val){if(!CU||isAdmin)return;const p=sid.replace('s','').split('_');await dbUpd('plans/'+CU.uid+'/selections',{[wk+'_'+p[1]+'_'+p[2]]:val});}
+async function saveNote(wk,di){if(!CU||isAdmin)return;const el=document.getElementById('note'+wk+'_'+di);if(!el)return;await dbUpd('plans/'+CU.uid+'/notes',{[wk+'_'+di]:el.value});}
+async function saveRefl(wk){if(!CU||isAdmin)return;const feel=document.getElementById('refl-feel-'+wk)?.value||'';const rpe=document.getElementById('refl-rpe-'+wk)?.value||'';const hi=document.getElementById('refl-hi-'+wk)?.value||'';const note=document.getElementById('refl-note-'+wk)?.value||'';await dbUpd('plans/'+CU.uid+'/reflections',{[wk]:{feel,rpe,hi,note,savedAt:Date.now()}});const s=document.getElementById('refl-saved-'+wk);if(s){s.classList.add('show');setTimeout(()=>s.classList.remove('show'),2000);}}
+async function togDay(wk,di){if(!CU||isAdmin)return;const k=wk+'_'+di,cur=planData.completed&&planData.completed[k];// Clear flags if completing
+const flag=planData.flags&&planData.flags[k];if(!cur&&flag){await dbUpd('plans/'+CU.uid+'/flags',{[k]:null});}await dbUpd('plans/'+CU.uid+'/completed',{[k]:!cur});}
+async function togFlag(wk,di,type){if(!CU||isAdmin)return;const k=wk+'_'+di;const cur=(planData.flags&&planData.flags[k])===type?null:type;// Clear completion if flagging
+if(cur){await dbUpd('plans/'+CU.uid+'/completed',{[k]:null});}await dbUpd('plans/'+CU.uid+'/flags',{[k]:cur});}
+
+function updDayUI(wk,di,done,flag){const card=document.getElementById('dc'+wk+'_'+di),chk=document.getElementById('chk'+wk+'_'+di),restBtn=document.getElementById('rest'+wk+'_'+di),sickBtn=document.getElementById('sick'+wk+'_'+di),badge=document.getElementById('dsb'+wk+'_'+di);if(!card)return;card.classList.toggle('completed',!!done&&!flag);card.classList.toggle('rest-day',flag==='rest');card.classList.toggle('sick-day',flag==='sick');if(chk){chk.classList.toggle('done',!!done);chk.innerHTML=done?'<span class="dci">&#10003;</span>&nbsp;Completed!':'<span class="dci">&#9675;</span>&nbsp;Mark Complete';}if(restBtn)restBtn.classList.toggle('active',flag==='rest');if(sickBtn)sickBtn.classList.toggle('active',flag==='sick');if(badge){badge.className='day-status-badge';if(flag==='rest'){badge.classList.add('rest');badge.textContent='Rest Day';}else if(flag==='sick'){badge.classList.add('sick');badge.textContent='Sick Day';}}}
+
+function updateProg(){const completed=planData.completed||{},flags=planData.flags||{};let done=0;for(let w=1;w<=WEEKS;w++)for(let d=0;d<7;d++){const k=w+'_'+d;if(completed[k]||flags[k])done++;}const pct=Math.round((done/TOTD)*100);document.getElementById('progFill').style.width=pct+'%';document.getElementById('progPct').textContent=pct+'%';document.getElementById('progDays').textContent=done+' / '+TOTD+' days';for(let w=1;w<=WEEKS;w++){let all=true;for(let d=0;d<7;d++){const k=w+'_'+d;if(!((planData.completed&&planData.completed[k])||(planData.flags&&planData.flags[k]))){all=false;break;}}const t=document.getElementById('pt'+w);if(t)t.classList.toggle('done',all);// Show/hide reflection
+const rb=document.getElementById('refl-box-'+w);const rl=document.getElementById('refl-locked-'+w);if(rb)rb.style.display=all?'block':'none';if(rl)rl.style.display=all?'none':'block';}}
+
+function refreshDrops(){document.querySelectorAll('.wsel').forEach(s=>{const ft=s.dataset.ft,sid=s.id.replace('ws',''),ts=document.getElementById('ts'+sid),t=ft||(ts?ts.value:'');if(!t)return;const pv=s.value;s.innerHTML='<option value="">Choose workout</option>'+Object.values(library).filter(w=>w.type===t).map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');if(Object.values(library).find(w=>w.id===pv))s.value=pv;});}
+function swWk(w){document.querySelectorAll('.wkp').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.wtab').forEach(t=>t.classList.remove('active'));document.getElementById('wk'+w).classList.add('active');document.getElementById('pt'+w).classList.add('active');curWeek=w;}
+function updWkSum(wk){const cnt={strength:0,flex:0,choreo:0,drills:0,speed:0};for(let d=0;d<6;d++)for(let s=0;s<2;s++){const ts=document.getElementById('ts'+'s'+wk+'_'+d+'_'+s);if(!ts)continue;const k=TC[ts.value]&&TC[ts.value].key;if(k&&k!=='injury')cnt[k]++;}const lb={strength:'Strength',flex:'Flex',choreo:'Choreo',drills:'Drills',speed:'Speed'};const cl={strength:'var(--ts)',flex:'var(--tf)',choreo:'var(--tc)',drills:'var(--td)',speed:'var(--tsp)'};const mx={strength:4,flex:4,choreo:3,drills:4,speed:3};let su='',wa=[];Object.keys(cnt).forEach(k=>{const c=cnt[k];if(!c)return;const ov=c>mx[k];su+='<div class="tcnt'+(ov?' over':'')+'"><div class="tdot" style="background:'+cl[k]+'"></div>'+lb[k]+': '+c+'/'+mx[k]+'</div>';if(ov)wa.push(lb[k]+': '+c+' (max '+mx[k]+'/week)');});document.getElementById('ws'+wk).innerHTML=su;const wb=document.getElementById('wb'+wk);document.getElementById('wl'+wk).innerHTML=wa.map(w=>'<li>'+w+'</li>').join('');wb.classList.toggle('show',wa.length>0);document.getElementById('pt'+wk).classList.toggle('warn',wa.length>0);}
+async function clearWeek(){if(!confirm('Clear Week '+curWeek+'?'))return;const p=document.getElementById('wk'+curWeek);p.querySelectorAll('select').forEach(s=>{s.value='';s.style.borderColor='';if(!s.dataset.ft)s.disabled=s.classList.contains('wsel');});p.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('show'));updWkSum(curWeek);if(CU){const u={};for(let d=0;d<7;d++)for(let s=0;s<3;s++)u[curWeek+'_'+d+'_'+s]=null;await dbUpd('plans/'+CU.uid+'/selections',u);}}
+
+// EXPORT PDF — shows all weeks with workout details
+function exportPDF(){// Show print detail blocks
+document.querySelectorAll('.print-workout-detail').forEach(el=>{const sid=el.id.replace('pwd-','');const ws=document.getElementById('ws'+sid);if(!ws||!ws.value)return;const w=library[ws.value];if(!w)return;el.innerHTML='<strong>'+esc(w.name)+':</strong> '+(w.desc?esc(w.desc):'')+(w.ytUrl?'<br>Video: '+esc(w.ytUrl):'');});// Show all weeks for print
+document.querySelectorAll('.wkp').forEach(p=>p.classList.add('active'));setTimeout(()=>{window.print();// Restore after print
+setTimeout(()=>{document.querySelectorAll('.wkp').forEach((p,i)=>{p.classList.toggle('active',i===curWeek-1);});},1000);},100);}
+
+// ATHLETES TABLE
+async function loadAthTable(){const w=document.getElementById('athTableWrap');w.innerHTML='<p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p>';const us=(await dbGet('users')).val()||{},pl=(await dbGet('plans')).val()||{};const rows=Object.entries(us).filter(([,u])=>u.role==='athlete');if(!rows.length){w.innerHTML='<p style="color:rgba(255,255,255,0.22);font-size:12px">No athletes yet.</p>';return;}w.innerHTML='<div style="overflow-x:auto"><table class="ath-tbl"><thead><tr><th>Name</th><th>Email</th><th>Progress</th><th>Days</th><th>Last Reflection</th></tr></thead><tbody>'+rows.map(([uid2,u])=>{const pd=pl[uid2]||{},comp=pd.completed||{},flags=pd.flags||{};let done=0;for(let wk=1;wk<=8;wk++)for(let d=0;d<7;d++){const k=wk+'_'+d;if(comp[k]||flags[k])done++;}const pct=Math.round((done/56)*100);// Latest reflection
+let lastRefl='—';const refls=pd.reflections||{};const rKeys=Object.keys(refls).sort((a,b)=>b-a);if(rKeys.length>0){const r=refls[rKeys[0]];const feels={great:'&#127881; Great',good:'&#128522; Good',tough:'&#128550; Tough',poor:'&#128565; Poor'};lastRefl='Wk '+rKeys[0]+': '+(feels[r.feel]||r.feel||'')+(r.rpe?' RPE '+r.rpe:'');}return '<tr><td><strong>'+esc(u.name||'')+'</strong></td><td style="color:rgba(255,255,255,0.38);font-size:11px">'+esc(u.email)+'</td><td><div class="pm"><div class="pmf" style="width:'+pct+'%"></div></div> <span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:4px">'+pct+'%</span></td><td style="font-family:\'DM Mono\',monospace;font-size:11px">'+done+'/56</td><td style="font-size:11px;color:rgba(255,255,255,0.45)">'+lastRefl+'</td></tr>';}).join('')+'</tbody></table></div>';}
+
+
+// COACH RESULTS VIEW
+function switchAthTab(tab){
+  document.getElementById('ath-panel-accounts').style.display = tab==='accounts'?'block':'none';
+  document.getElementById('ath-panel-results').style.display = tab==='results'?'block':'none';
+  document.getElementById('subtab-accounts').classList.toggle('active', tab==='accounts');
+  document.getElementById('subtab-results').classList.toggle('active', tab==='results');
+  if(tab==='results') loadCoachResults();
+}
+
+const TEST_META = [
+  {section:'Technical', tests:[
+    {key:'twistspin', label:'Half Twist + 720 Spin x3', type:'select'},
+    {key:'vertical',  label:'Vertical 30 Sculls x3',   type:'select'},
+  ]},
+  {section:'Speed Swimming', tests:[
+    {key:'400m',  label:'400m Timed Swim',   type:'time', gold:300, amber:320},
+    {key:'200im', label:'200m IM Kick',       type:'time', gold:215, amber:230},
+    {key:'hyp',   label:'150m Hypoxic Test', type:'hypoxic'},
+  ]},
+  {section:'Strength & Land', tests:[
+    {key:'squat',   label:'Jumping Squats + Wall Sit', type:'time',  gold:120, amber:90},
+    {key:'vsit',    label:'V-Sit + Plank Hold',         type:'time',  gold:180, amber:150},
+    {key:'pressup', label:'Narrow Press-Ups',           type:'reps',  gold:30,  amber:20},
+    {key:'glute',   label:'Single Leg Glute Bridge',   type:'time',  gold:180, amber:150},
+    {key:'scull',   label:'2x1min Fast Support Sculls', type:'sculls'},
+  ]},
+  {section:'Flexibility', tests:[
+    {key:'lsplit',  label:'Left Leg Split',   type:'select'},
+    {key:'rsplit',  label:'Right Leg Split',  type:'select'},
+    {key:'box',     label:'Box Split',        type:'select'},
+    {key:'bridge',  label:'Bridge',           type:'bridge'},
+    {key:'legext',  label:'Leg Extension',    type:'legext'},
+    {key:'feetext', label:'Feet Extension',   type:'feetext'},
+  ]},
+];
+
+function getResultStd(r, meta){
+  if(meta.type==='select') return r[meta.key+'_score']||'';
+  if(meta.type==='time'){const t=parseTime(r[meta.key+'_time']||'');if(!t)return '';return t>=meta.gold?'gold':t>=meta.amber?'amber':'red';}
+  if(meta.type==='reps'){const v=parseInt(r[meta.key+'_reps']||'');if(isNaN(v))return '';return v>=meta.gold?'gold':v>=meta.amber?'amber':'red';}
+  if(meta.type==='hypoxic'){const t1=parseTime(r.hyp1_time||''),t2=parseTime(r.hyp2_time||'');if(!t1||!t2)return '';const w=Math.max(t1,t2);return w<=120?'gold':w<=130?'amber':'red';}
+  if(meta.type==='sculls'){const tot=(parseInt(r.scull1||0)||0)+(parseInt(r.scull2||0)||0);if(!tot)return '';return tot>=250?'gold':tot>=230?'amber':'red';}
+  if(meta.type==='bridge'){const v=parseFloat(r.bridge_cm||'');if(isNaN(v))return '';return v<=10?'gold':v<=20?'amber':'red';}
+  if(meta.type==='legext'){const v=parseFloat(r.legext_cm||'');if(isNaN(v))return '';return v>=5?'gold':v>=2?'amber':'red';}
+  if(meta.type==='feetext'){const v=parseFloat(r.feetext_cm||'');if(isNaN(v))return '';return v<=3?'gold':v<=6?'amber':'red';}
+  return '';
+}
+
+function getResultValue(r, meta){
+  if(meta.type==='select') return r[meta.key+'_score']||'';
+  if(meta.type==='time') return r[meta.key+'_time']||'';
+  if(meta.type==='reps') return r[meta.key+'_reps']||'';
+  if(meta.type==='hypoxic') return (r.hyp1_time&&r.hyp2_time)?r.hyp1_time+' / '+r.hyp2_time:'';
+  if(meta.type==='sculls'){const tot=(parseInt(r.scull1||0)||0)+(parseInt(r.scull2||0)||0);return tot?tot+' total ('+( r.scull1||0)+'+'+( r.scull2||0)+')'  :'';}
+  if(meta.type==='bridge') return r.bridge_cm!==undefined&&r.bridge_cm!==''?r.bridge_cm+'cm':'';
+  if(meta.type==='legext') return r.legext_cm!==undefined&&r.legext_cm!==''?r.legext_cm+'cm':'';
+  if(meta.type==='feetext') return r.feetext_cm!==undefined&&r.feetext_cm!==''?r.feetext_cm+'cm':'';
+  return '';
+}
+
+function stdLabel(s){return s==='gold'?'Gold ★':s==='amber'?'Amber':s==='red'?'Red':'';}
+
+async function loadCoachResults(){
+  const wrap = document.getElementById('coachResultsWrap');
+  wrap.innerHTML = '<p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p>';
+  const [usSnap, resSnap] = await Promise.all([dbGet('users'), dbGet('results')]);
+  const users = usSnap.val()||{};
+  const allResults = resSnap.val()||{};
+  const athletes = Object.entries(users)
+    .filter(([,u])=>u.role==='athlete')
+    .sort(([,a],[,b])=>(a.name||'').localeCompare(b.name||''));
+
+  if(!athletes.length){
+    wrap.innerHTML='<p style="color:rgba(255,255,255,0.22);font-size:12px">No athletes yet.</p>';
+    return;
+  }
+
+  const blocks = athletes.map(([uid2, u])=>{
+    const r = allResults[uid2]||{};
+    const hasAny = Object.keys(r).some(k=>k!=='savedAt'&&r[k]!=='');
+    const initials = (u.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+    // Count gold/amber/red across all tests
+    let golds=0, ambers=0, reds=0;
+    TEST_META.forEach(sec=>sec.tests.forEach(t=>{
+      const s = getResultStd(r,t);
+      if(s==='gold')golds++;else if(s==='amber')ambers++;else if(s==='red')reds++;
+    }));
+
+    const savedDate = r.savedAt ? new Date(r.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+
+    const pillsHtml = hasAny ? `
+      ${golds?'<span class="cr-pill gold">'+golds+' Gold</span>':''}
+      ${ambers?'<span class="cr-pill amber">'+ambers+' Amber</span>':''}
+      ${reds?'<span class="cr-pill red">'+reds+' Red</span>':''}
+    ` : '<span class="cr-pill none">No results yet</span>';
+
+    const sectionsHtml = TEST_META.map(sec=>{
+      const testsHtml = sec.tests.map(t=>{
+        const std = getResultStd(r,t);
+        const val = getResultValue(r,t);
+        const note = r[t.key+'_note']||'';
+        if(!val&&!std) return `<div class="cr-test"><div class="cr-test-name">${t.label}</div><div class="cr-test-result"><span style="font-size:10px;color:rgba(255,255,255,0.15);">Not recorded</span></div></div>`;
+        const badgeClass = std?(' '+std):'';
+        return `<div class="cr-test">
+          <div class="cr-test-name">${t.label}</div>
+          <div class="cr-test-result">
+            ${std?'<span class="std-badge'+badgeClass+'">'+stdLabel(std)+'</span>':''}
+            ${val?'<span class="cr-test-value">'+val+'</span>':''}
+          </div>
+          ${note?'<div class="cr-test-note">'+note+'</div>':''}
+        </div>`;
+      }).join('');
+      return `<div class="cr-section"><div class="cr-section-title">${sec.section}</div><div class="cr-grid">${testsHtml}</div></div>`;
+    }).join('');
+
+    return `<div class="cr-athlete-block" id="crblock-${uid2}">
+      <div class="cr-athlete-hdr" onclick="toggleCrBlock('${uid2}')">
+        <div class="cr-athlete-avatar">${initials}</div>
+        <div>
+          <div class="cr-athlete-name">${u.name||'Unknown'}</div>
+          <div class="cr-athlete-email">${u.email||''}</div>
+        </div>
+        <div class="cr-summary-pills">${pillsHtml}</div>
+        ${savedDate?'<div class="cr-date">Last updated: '+savedDate+'</div>':''}
+        <span class="cr-chevron">&#9660;</span>
+      </div>
+      <div class="cr-body">${hasAny?sectionsHtml:'<div class="cr-no-results">This athlete has not saved any results yet.</div>'}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <h3 style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;">Results by Athlete</h3>
+      <span style="font-size:11px;color:rgba(255,255,255,0.28);">${athletes.length} athlete${athletes.length!==1?'s':''}</span>
+      <button class="hdr-btn" onclick="loadCoachResults()" style="margin-left:auto">&#8635; Refresh</button>
+    </div>
+    <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:14px;">Click an athlete to expand their full results. Athletes are sorted alphabetically.</p>
+    ${blocks}
+  `;
+}
+
+function toggleCrBlock(uid2){
+  document.getElementById('crblock-'+uid2).classList.toggle('open');
+}
+
+// PAGE
+function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.mob-nav-item').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');document.querySelectorAll('.nav-tab, .mob-nav-item').forEach(t=>{if((n==='library'&&t.textContent.includes('Library'))||(n==='planner'&&t.textContent.includes('Plan'))||(n==='athletes'&&t.textContent.includes('Athletes')))t.classList.add('active');});document.getElementById('fabEl').style.display=n==='planner'?'flex':'none';if(n==='athletes'&&isAdmin){loadAthTable();}if(n==='results')initResultsPage();}
+function showPop(sid,evt){const ws=document.getElementById('ws'+sid);const wid=ws&&ws.value;if(!wid)return;const w=library[wid];if(!w)return;const c=TC[w.type]||{};const pop=document.getElementById('pop');let med='';if(w.ytUrl){const v=ytId(w.ytUrl);med='<div class="pop-yt"><iframe src="https://www.youtube.com/embed/'+v+'?rel=0" allowfullscreen></iframe></div>';}else if(w.imageDataUrl)med='<img class="pop-media" src="'+w.imageDataUrl+'" alt="">';document.getElementById('popMed').innerHTML=med;document.getElementById('popType').textContent=w.type;document.getElementById('popType').style.color=c.color||'#aaa';document.getElementById('popName').textContent=w.name;document.getElementById('popDesc').textContent=w.desc||'';const lnk=document.getElementById('popLink');if(w.ytUrl){lnk.href=w.ytUrl;lnk.style.display='block';}else lnk.style.display='none';pop.classList.add('open');const r=evt.target.getBoundingClientRect();let lft=r.right+8;if(lft+295>window.innerWidth-8)lft=r.left-303;let top=r.top;if(top+420>window.innerHeight)top=window.innerHeight-430;pop.style.left=Math.max(8,lft)+'px';pop.style.top=Math.max(8,top)+'px';}
+function openYtPop(id,evt){const w=library[id];if(!w||!w.ytUrl)return;const v=ytId(w.ytUrl),c=TC[w.type]||{},pop=document.getElementById('pop');document.getElementById('popMed').innerHTML='<div class="pop-yt"><iframe src="https://www.youtube.com/embed/'+v+'?autoplay=1&rel=0" allowfullscreen></iframe></div>';document.getElementById('popType').textContent=w.type;document.getElementById('popType').style.color=c.color||'#aaa';document.getElementById('popName').textContent=w.name;document.getElementById('popDesc').textContent=w.desc||'';const lnk=document.getElementById('popLink');lnk.href=w.ytUrl;lnk.style.display='block';pop.classList.add('open');const r=evt.target.getBoundingClientRect();let lft=r.right+8;if(lft+295>window.innerWidth-8)lft=r.left-303;pop.style.left=Math.max(8,lft)+'px';pop.style.top=Math.max(8,Math.min(r.top,window.innerHeight-430))+'px';}
+function closePop(){document.getElementById('pop').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.pop')&&!e.target.closest('.vbtn')&&!e.target.closest('.wcard-yt'))closePop();});
+
+// RESULTS
+function parseTime(s){const p=s.trim().split(':');if(p.length===2){return parseInt(p[0])*60+parseFloat(p[1]);}return parseFloat(s)||null;}
+function setStdBadge(id,level,text){const el=document.getElementById(id);if(!el)return;el.className='std-badge'+(level?' '+level:'');el.textContent=text||level||'—';}
+function calcSwimStd(id){const times={'400m':{gold:300,amber:320},'200im':{gold:215,amber:230}};const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}const s=times[id];if(t<=s.gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(t<=s.amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcHypoxicStd(){const t1=parseTime(document.getElementById('r_hyp1_time')?.value||'');const t2=parseTime(document.getElementById('r_hyp2_time')?.value||'');if(!t1||!t2){setStdBadge('r_hyp_std','','—');return;}const worst=Math.max(t1,t2);if(worst<=120)setStdBadge('r_hyp_std','gold','Gold ★');else if(worst<=130)setStdBadge('r_hyp_std','amber','Amber');else setStdBadge('r_hyp_std','red','Red');}
+function calcTimeStd(id,gold,amberMin,_){const t=parseTime(document.getElementById('r_'+id+'_time')?.value||'');if(!t){setStdBadge('r_'+id+'_std','','—');return;}if(t>=gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(t>=amberMin)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcRepStd(id,gold,amber){const v=parseInt(document.getElementById('r_'+id+'_reps')?.value||'');if(isNaN(v)){setStdBadge('r_'+id+'_std','','—');return;}if(v>=gold)setStdBadge('r_'+id+'_std','gold','Gold ★');else if(v>=amber)setStdBadge('r_'+id+'_std','amber','Amber');else setStdBadge('r_'+id+'_std','red','Red');}
+function calcScullStd(){const s1=parseInt(document.getElementById('r_scull1')?.value||0)||0,s2=parseInt(document.getElementById('r_scull2')?.value||0)||0;const tot=s1+s2;if(!tot){setStdBadge('r_scull_std','','—');return;}const lbl=tot+' total';if(tot>=250)setStdBadge('r_scull_std','gold','Gold ★ — '+lbl);else if(tot>=230)setStdBadge('r_scull_std','amber','Amber — '+lbl);else setStdBadge('r_scull_std','red','Red — '+lbl);}
+function calcBridgeStd(){const v=parseFloat(document.getElementById('r_bridge_cm')?.value||'');if(isNaN(v)){setStdBadge('r_bridge_std','','—');return;}if(v<=10)setStdBadge('r_bridge_std','gold','Gold ★');else if(v<=20)setStdBadge('r_bridge_std','amber','Amber');else setStdBadge('r_bridge_std','red','Red');}
+function calcLegExtStd(){const v=parseFloat(document.getElementById('r_legext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_legext_std','','—');return;}if(v>=5)setStdBadge('r_legext_std','gold','Gold ★');else if(v>=2)setStdBadge('r_legext_std','amber','Amber');else setStdBadge('r_legext_std','red','Red');}
+function calcFeetExtStd(){const v=parseFloat(document.getElementById('r_feetext_cm')?.value||'');if(isNaN(v)){setStdBadge('r_feetext_std','','—');return;}if(v<=3)setStdBadge('r_feetext_std','gold','Gold ★');else if(v<=6)setStdBadge('r_feetext_std','amber','Amber');else setStdBadge('r_feetext_std','red','Red');}
+
+const RESULT_FIELDS=['twistspin_score','twistspin_note','vertical_score','vertical_note','400m_time','400m_note','200im_time','200im_note','hyp1_time','hyp2_time','hyp_note','squat_time','squat_note','vsit_time','vsit_note','pressup_reps','pressup_note','glute_time','glute_note','scull1','scull2','scull_note','lsplit_score','lsplit_cm','lsplit_note','rsplit_score','rsplit_cm','rsplit_note','box_score','box_cm','box_note','bridge_cm','bridge_note','legext_cm','legext_note','feetext_cm','feetext_note'];
+
+async function saveResults(){if(!CU||isAdmin)return;const data={};RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el)data[f]=el.value;});data.savedAt=Date.now();await dbSet('results/'+CU.uid,data);alert('Results saved!');}
+
+function loadResults(data){if(!data)return;RESULT_FIELDS.forEach(f=>{const el=document.getElementById('r_'+f);if(el&&data[f]!==undefined)el.value=data[f];});// Recalc all auto-standards
+['400m','200im'].forEach(calcSwimStd);calcHypoxicStd();['squat','vsit','glute'].forEach(id=>calcTimeStd(id,id==='vsit'?180:180,id==='vsit'?150:150,0));calcRepStd('pressup',30,20);calcScullStd();calcBridgeStd();calcLegExtStd();calcFeetExtStd();}
+
+function initResultsPage(){const tag=document.getElementById('resultsAthleteTag');if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}if(isAdmin){document.getElementById('btnSaveResults').style.display='none';}else{// Load saved results
+dbGet('results/'+CU.uid).then(snap=>{if(snap.val())loadResults(snap.val());});}}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.bkdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
+switchAuthTab('signin');
+</script>
+</body>
+</html>
