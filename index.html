@@ -101,8 +101,8 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
 /* PAGES */
 .app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-.page{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;}
-.page.active{display:flex;flex-direction:column;}
+.page{display:none;flex:1;min-height:0;}
+.page.active{display:flex;flex-direction:column;overflow:hidden;}
 /* LIBRARY */
 .lib-layout{display:flex;flex:1;min-height:0;overflow:hidden;}
 .lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
@@ -373,55 +373,160 @@ body.light-mode {
   --border:rgba(0,0,0,0.1);
   --foam:#1a2a3a;
   --gold:#a07830;
-  --gold-l:#b8922a;
+  --gold-l:#8a5e18;
   background:#f0f4f8;
   color:#1a2a3a;
 }
+/* Header stays dark for contrast */
 body.light-mode .app-header{background:linear-gradient(135deg,#1a3050 0%,#2a4a70 100%);}
-body.light-mode .app-header .header-title{color:#fff;}
+body.light-mode .header-title{color:#fff !important;}
+body.light-mode .header-title span{color:#e8c96e !important;}
 body.light-mode .nav-tab{color:rgba(255,255,255,0.6);}
 body.light-mode .nav-tab.active{background:rgba(255,255,255,0.15);color:#fff;}
-body.light-mode .user-chip.admin{background:rgba(201,168,76,0.2);color:#8a6020;}
-body.light-mode .user-chip.athlete{background:rgba(78,174,209,0.15);color:#1a5a8a;}
-body.light-mode .hdr-btn{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);}
-body.light-mode .lib-sb{background:#e2eaf2;border-right-color:rgba(0,0,0,0.08);}
-body.light-mode .sdb{color:#4a6a8a;}
-body.light-mode .sdb.active{background:rgba(0,0,0,0.06);color:#1a2a3a;}
+body.light-mode .user-chip.admin{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.25);color:#fff;}
+body.light-mode .user-chip.athlete{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);color:#e8f4f8;}
+body.light-mode .hdr-btn{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);}
+body.light-mode .chip-dot{background:#e8c96e !important;}
+/* Progress banner */
+body.light-mode .prog-banner{background:linear-gradient(90deg,#dce8f5,#c8ddf0);}
+body.light-mode .prog-lbl{color:#3a5a7a;}
+body.light-mode .prog-pct{color:#7a5010;}
+body.light-mode .prog-days{color:#5a7a9a;}
+/* Sidebar */
+body.light-mode .lib-sb{background:#e2eaf2;border-right-color:rgba(0,0,0,0.1);}
+body.light-mode .sdb{color:#3a5a7a;}
+body.light-mode .sdb:hover{background:rgba(0,0,0,0.05);color:#1a2a3a;}
+body.light-mode .sdb.active{background:rgba(0,0,0,0.07);color:#1a2a3a;}
+body.light-mode .scnt{background:rgba(0,0,0,0.08);color:#4a6a8a;}
+/* Library cards */
 body.light-mode .lib-main{background:#f0f4f8;}
-body.light-mode .wcard{background:#fff;border-color:rgba(0,0,0,0.08);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+body.light-mode .lib-hdr h2{color:#1a2a3a;}
+body.light-mode .wcard{background:#fff;border-color:rgba(0,0,0,0.1);box-shadow:0 2px 8px rgba(0,0,0,0.07);}
 body.light-mode .wcard-name{color:#1a2a3a;}
-body.light-mode .wcard-desc{color:#5a7a9a;}
-body.light-mode .result-card{background:#fff;border-color:rgba(0,0,0,0.08);}
-body.light-mode .rc-name{color:#1a2a3a;}
-body.light-mode .rc-desc{color:#6a8aaa;}
-body.light-mode .results-grid{background:#e8f0f8;border-color:rgba(0,0,0,0.06);}
-body.light-mode .dcard{background:#fff;border-color:rgba(0,0,0,0.08);}
-body.light-mode .slot{background:#f5f8fc;border-color:rgba(0,0,0,0.06);}
-body.light-mode select.tsel,body.light-mode select.wsel{background:#f5f8fc;border-color:rgba(0,0,0,0.12);color:#2a3a4a;}
-body.light-mode select.tsel option,body.light-mode select.wsel option{background:#fff;color:#1a2a3a;}
-body.light-mode .snote{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#2a3a4a;}
-body.light-mode .dchk-btn{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#5a7a9a;}
-body.light-mode .flag-btn{background:#f5f8fc;border-color:rgba(0,0,0,0.08);color:#5a7a9a;}
-body.light-mode .plan-wks{background:#e2eaf2;border-bottom-color:rgba(0,0,0,0.08);}
-body.light-mode .wtab{color:#5a7a9a;}
-body.light-mode .modal{background:#fff;border-color:rgba(0,0,0,0.1);}
+body.light-mode .wcard-desc{color:#4a6a8a;}
+body.light-mode .wcard-none{background:#f5f8fc;color:#8aaac8;}
+body.light-mode .wcard-link{color:#1a5a9a;}
+body.light-mode .ibtn{background:#f0f4f8;border-color:rgba(0,0,0,0.12);color:#3a5a7a;}
+/* Week tabs */
+body.light-mode .plan-wks{background:#dce8f5;border-bottom-color:rgba(0,0,0,0.1);}
+body.light-mode .wtab{color:#4a6a8a;}
+body.light-mode .wtab:hover{background:rgba(0,0,0,0.05);color:#1a2a3a;}
+body.light-mode .wtab.active{background:rgba(160,120,48,0.15);border-color:rgba(160,120,48,0.4);color:#7a5010;}
+body.light-mode .wtab.done{background:rgba(46,196,182,0.12);border-color:rgba(46,196,182,0.3);color:#1a7a6a;}
+/* Day cards */
+body.light-mode .dcard{background:#fff;border-color:rgba(0,0,0,0.1);}
+body.light-mode .dcard.sunday{background:#f0f5f8;border-color:rgba(0,0,0,0.08);}
+body.light-mode .dcard.completed{background:#f0fff8;border-color:rgba(46,196,182,0.4);}
+body.light-mode .dn{color:#2a4a6a;}
+body.light-mode .dc{color:#6a8aaa;}
+body.light-mode .slot{background:#f5f8fc;border-color:rgba(0,0,0,0.07);}
+body.light-mode .slbl{color:#5a7a9a;}
+body.light-mode select.tsel,body.light-mode select.wsel{background:#fff;border-color:rgba(0,0,0,0.15);color:#1a2a3a;}
+body.light-mode select option{background:#fff;color:#1a2a3a;}
+body.light-mode .snote{background:#fff;border-color:rgba(0,0,0,0.1);color:#1a2a3a;}
+body.light-mode .snote::placeholder{color:#8aaac8;}
+body.light-mode .dchk-btn{background:#f0f4f8;border-color:rgba(0,0,0,0.1);color:#3a5a7a;}
+body.light-mode .flag-btn{background:#f0f4f8;border-color:rgba(0,0,0,0.1);color:#3a5a7a;}
+body.light-mode .day-status-badge.rest{background:rgba(100,150,200,0.12);color:#2a5a8a;border-color:rgba(100,150,200,0.3);}
+body.light-mode .day-status-badge.sick{background:rgba(160,120,48,0.1);color:#7a5010;border-color:rgba(160,120,48,0.3);}
+/* Week summary */
+body.light-mode .wkt{color:#1a2a3a;}
+body.light-mode .tcnt{background:#f0f4f8;border-color:rgba(0,0,0,0.1);color:#3a5a7a;}
+body.light-mode .tcnt.over{background:rgba(224,92,58,0.08);border-color:rgba(224,92,58,0.3);color:#c0392b;}
+body.light-mode .warnbox{background:rgba(224,92,58,0.06);border-color:rgba(224,92,58,0.25);}
+body.light-mode .warnbox strong{color:#c0392b;}
+body.light-mode .warnbox ul li{color:#c0392b;}
+/* Reflection */
+body.light-mode .refl-box{background:#f0f8f7;border-color:rgba(46,196,182,0.25);}
+body.light-mode .refl-box h4{color:#1a7a6a;}
+body.light-mode .refl-field label{color:#4a7a6a;}
+body.light-mode .refl-field textarea,body.light-mode .refl-field select{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a2a3a;}
+body.light-mode .refl-save-btn{background:rgba(46,196,182,0.12);border-color:rgba(46,196,182,0.3);color:#1a7a6a;}
+body.light-mode .refl-saved{color:#1a7a6a;}
+body.light-mode .refl-locked{background:rgba(0,0,0,0.03);border-color:rgba(0,0,0,0.1);color:#6a8aaa;}
+/* Modals */
+body.light-mode .bkdrop{background:rgba(0,0,0,0.5);}
+body.light-mode .modal{background:#fff;border-color:rgba(0,0,0,0.15);}
 body.light-mode .modal h3{color:#1a2a3a;}
-body.light-mode .fg input,.light-mode .fg textarea,.light-mode .fg select{background:#f5f8fc;border-color:rgba(0,0,0,0.12);color:#1a2a3a;}
-body.light-mode .prog-banner{background:linear-gradient(90deg,#e2eaf2,#d5e5f5);}
-body.light-mode .prog-lbl{color:#5a7a9a;}
-body.light-mode .prog-days{color:#7a9aba;}
-body.light-mode .refl-box{background:rgba(46,196,182,0.05);border-color:rgba(46,196,182,0.2);}
-body.light-mode .refl-field textarea,.light-mode .refl-field select{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#1a2a3a;}
-body.light-mode .prog-chart-card{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .fg label{color:#3a5a7a;}
+body.light-mode .fg input,body.light-mode .fg textarea,body.light-mode .fg select{background:#f5f8fc;border-color:rgba(0,0,0,0.15);color:#1a2a3a;}
+body.light-mode .fg input::placeholder,body.light-mode .fg textarea::placeholder{color:#8aaac8;}
+body.light-mode .btn-cancel{background:#f0f4f8;color:#3a5a7a;border-color:rgba(0,0,0,0.15);}
+body.light-mode .mtabs{background:rgba(0,0,0,0.06);}
+body.light-mode .mt{color:#4a6a8a;}
+body.light-mode .mt.active{background:#e2eaf2;color:#1a2a3a;}
+body.light-mode .dz{border-color:rgba(0,0,0,0.15);}
+body.light-mode .dz p{color:#4a6a8a;}
+/* Results page */
+body.light-mode .results-section-hdr{opacity:0.9;}
+body.light-mode .results-grid{background:#e8f0f8;border-color:rgba(0,0,0,0.08);}
+body.light-mode .result-card{background:#fff;border-color:rgba(0,0,0,0.1);}
+body.light-mode .rc-name{color:#1a2a3a;}
+body.light-mode .rc-desc{color:#4a6a8a;}
+body.light-mode .rc-standards .std.gold{background:rgba(160,120,48,0.1);color:#7a5010;border-color:rgba(160,120,48,0.25);}
+body.light-mode .rc-standards .std.amber{background:rgba(200,100,20,0.08);color:#8a4010;border-color:rgba(200,100,20,0.2);}
+body.light-mode .rc-standards .std.red{background:rgba(200,60,40,0.08);color:#8a1a10;border-color:rgba(200,60,40,0.2);}
+body.light-mode .rc-input-row label{color:#3a5a7a;}
+body.light-mode .rc-input-row input,body.light-mode .rc-input-row select{background:#f5f8fc;border-color:rgba(0,0,0,0.12);color:#1a2a3a;}
+body.light-mode .rc-input-row input::placeholder{color:#8aaac8;}
+body.light-mode .std-badge{background:#f0f4f8;color:#4a6a8a;border-color:rgba(0,0,0,0.12);}
+body.light-mode .std-badge.gold{background:rgba(160,120,48,0.12);color:#7a5010;border-color:rgba(160,120,48,0.3);}
+body.light-mode .std-badge.amber{background:rgba(200,100,20,0.1);color:#8a4010;border-color:rgba(200,100,20,0.25);}
+body.light-mode .std-badge.red{background:rgba(200,60,40,0.1);color:#8a1a10;border-color:rgba(200,60,40,0.2);}
+body.light-mode #resultsHistoryBar{background:#f5f8fc;border-color:rgba(0,0,0,0.1);}
+/* Results date/save area */
+body.light-mode #btnSaveResults label{color:#3a5a7a !important;}
+body.light-mode #resultsDate{background:#fff;border-color:rgba(0,0,0,0.15);color:#1a2a3a;}
+/* Progress charts */
+body.light-mode #progressCharts .prog-filter-btn{background:#f0f4f8;border-color:rgba(0,0,0,0.12);color:#3a5a7a;}
+body.light-mode #progressCharts .prog-filter-btn.active{background:rgba(160,120,48,0.1);border-color:rgba(160,120,48,0.3);color:#7a5010;}
+body.light-mode .prog-chart-card{background:#fff;border-color:rgba(0,0,0,0.1);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 body.light-mode .prog-chart-title{color:#1a2a3a;}
-body.light-mode #workoutPanel{background:#fff;border-top-color:rgba(0,0,0,0.1);}
-body.light-mode #panelName{color:#1a2a3a;}
-body.light-mode #panelDesc{color:#4a6a8a;}
-body.light-mode .ath-tbl td{border-bottom-color:rgba(0,0,0,0.05);}
-body.light-mode .cr-athlete-block{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .prog-chart-subtitle{color:#5a7a9a;}
+body.light-mode .prog-no-chart{color:#8aaac8;}
+/* Athletes page */
+body.light-mode .ath-subtab{background:#f0f4f8;color:#4a6a8a;border-color:rgba(0,0,0,0.1);}
+body.light-mode .ath-subtab.active{background:#e2eaf2;color:#1a2a3a;border-color:rgba(0,0,0,0.15);}
+body.light-mode .ath-tbl th{color:#5a7a9a;}
+body.light-mode .ath-tbl td{color:#2a3a4a;border-bottom-color:rgba(0,0,0,0.06);}
+body.light-mode .ath-tbl tr:hover td{background:rgba(0,0,0,0.02);}
+body.light-mode .cr-athlete-block{background:#fff;border-color:rgba(0,0,0,0.1);}
 body.light-mode .cr-athlete-hdr{background:#f5f8fc;}
-body.light-mode .cr-test{background:#f0f4f8;}
 body.light-mode .cr-athlete-name{color:#1a2a3a;}
+body.light-mode .cr-athlete-email{color:#5a7a9a;}
+body.light-mode .cr-section-title{color:#5a7a9a;}
+body.light-mode .cr-test{background:#f0f4f8;}
+body.light-mode .cr-test-name{color:#2a3a4a;}
+body.light-mode .cr-test-value{color:#4a6a8a;}
+body.light-mode .cr-test-note{color:#7a9aba;}
+body.light-mode .cr-date{color:#6a8aaa;}
+body.light-mode .cr-chevron{color:#5a7a9a;}
+body.light-mode .cr-pill.none{background:rgba(0,0,0,0.05);color:#6a8aaa;border-color:rgba(0,0,0,0.1);}
+body.light-mode .cr-no-results{color:#8aaac8;}
+/* Workout mini-player panel */
+body.light-mode #workoutPanel{background:#fff;border-top-color:rgba(0,0,0,0.1);}
+body.light-mode #panelType{opacity:0.8;}
+body.light-mode #panelName{color:#1a2a3a;}
+body.light-mode #panelDesc{color:#3a5a7a;}
+body.light-mode #panelLink{background:rgba(78,174,209,0.08);border-color:rgba(78,174,209,0.2);color:#1a5a9a;}
+/* General text that uses rgba white */
+body.light-mode p,body.light-mode h1,body.light-mode h2,body.light-mode h3,body.light-mode h4{color:#1a2a3a;}
+body.light-mode small{color:#4a6a8a;}
+body.light-mode .empty-st{color:#6a8aaa;}
+body.light-mode .empty-st p{color:#4a6a8a;}
+body.light-mode .empty-st small{color:#8aaac8;}
+body.light-mode .login-brand h1{color:#1a2a3a;}
+body.light-mode .login-brand p{color:#4a6a8a;}
+body.light-mode #loginScreen{background:radial-gradient(ellipse at 55% 35%,#c8ddf5 0%,#f0f4f8 68%);}
+body.light-mode .tsw{background:rgba(0,0,0,0.07);}
+body.light-mode .tsw-btn{color:#4a6a8a;}
+body.light-mode .tsw-btn.active{background:#e2eaf2;color:#1a2a3a;}
+body.light-mode .fld label{color:#3a5a7a;}
+body.light-mode .fld input{background:#fff;border-color:rgba(0,0,0,0.15);color:#1a2a3a;}
+body.light-mode .fld input::placeholder{color:#8aaac8;}
+body.light-mode .btn-login{background:#a07830;color:#fff;}
+body.light-mode .btn-login:hover{background:#8a6018;}
+body.light-mode .login-hint{color:#6a8aaa;}
 
 @media print{
   #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
@@ -547,7 +652,7 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
     </div>
     <!-- MY PROGRESS PAGE -->
     <div id="page-progress" class="page">
-      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
+      <div style="overflow-y:auto;padding:18px 20px;height:100%;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Progress</h2>
           <div id="progressAthleteTag" style="padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;display:none;"></div>
@@ -577,11 +682,11 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
           <button class="btn-add" onclick="openModal('createAthModal')" style="margin-left:auto;margin-bottom:8px">+ Create Account</button>
         </div>
         <!-- Accounts tab -->
-        <div id="ath-panel-accounts" style="flex:1;overflow-y:auto;padding:18px 20px;">
+        <div id="ath-panel-accounts" style="overflow-y:auto;padding:18px 20px;height:100%;">
           <div id="athTableWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p></div>
         </div>
         <!-- Results tab -->
-        <div id="ath-panel-results" style="flex:1;overflow-y:auto;padding:18px 20px;display:none;">
+        <div id="ath-panel-results" style="overflow-y:auto;padding:18px 20px;height:100%;display:none;">
           <div id="coachResultsWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p></div>
         </div>
       </div>
@@ -590,7 +695,7 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
 
     <!-- RESULTS PAGE -->
     <div id="page-results" class="page">
-      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
+      <div style="overflow-y:auto;padding:18px 20px;height:100%;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
           <div id="resultsAthleteTag" style="display:none;padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;"></div>
