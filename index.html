@@ -242,8 +242,8 @@ select option{background:#1a3050;color:#fff;}
 .flag-btn.rest.active{background:rgba(224,92,58,0.15);border-color:rgba(224,92,58,0.4);color:#ff8c74;}
 .flag-btn.sick.active{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.35);color:var(--gold-l);}
 /* DAY STATUS BADGE */
-.day-status-badge{padding:2px 6px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;display:none;text-align:center;margin:0 6px 4px;}
-.day-status-badge.rest{display:block;background:rgba(224,92,58,0.15);color:#ff8c74;border:1px solid rgba(224,92,58,0.3);}
+.day-status-badge{padding:3px 7px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.5px;display:none;text-align:center;margin:0 6px 4px;line-height:1.4;}
+.day-status-badge.rest{display:block;background:rgba(78,130,168,0.15);color:#8ec8e8;border:1px solid rgba(78,130,168,0.3);}
 .day-status-badge.sick{display:block;background:rgba(201,168,76,0.1);color:var(--gold-l);border:1px solid rgba(201,168,76,0.25);}
 /* POPOVER */
 .pop{position:fixed;z-index:400;background:#0f1e35;border:1px solid rgba(255,255,255,0.12);border-radius:10px;width:290px;box-shadow:0 18px 55px rgba(0,0,0,0.5);overflow:hidden;display:none;}
@@ -745,6 +745,29 @@ select option{background:#1a3050;color:#fff;}
 
 </div>
 
+<!-- FLAG REASON MODAL -->
+<div class="bkdrop" id="flagModal">
+  <div class="modal" style="max-width:380px;">
+    <h3 id="flagModalTitle">😴 Rest Day</h3>
+    <div id="flagRestMsg" style="display:none;background:rgba(46,196,182,0.07);border:1px solid rgba(46,196,182,0.2);border-radius:7px;padding:11px 14px;margin-bottom:14px;">
+      <div style="font-size:13px;margin-bottom:5px;">💪 Don't forget your Injury Prevention session!</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">Rest days are a great opportunity to keep on top of your prehab and injury prevention exercises. These sessions help keep you strong, mobile and ready to train hard. Check your workout library for today's Injury Prevention session.</div>
+    </div>
+    <div id="flagSickMsg" style="display:none;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:7px;padding:11px 14px;margin-bottom:14px;">
+      <div style="font-size:13px;margin-bottom:5px;">🤒 Feel better soon!</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">Make sure you rest up properly — your body needs time to recover. Let your coach know how you're feeling and don't rush back. If you feel well enough, gentle injury prevention exercises may be suitable but check with your coach first.</div>
+    </div>
+    <div class="fg">
+      <label id="flagReasonLabel">Reason (optional)</label>
+      <textarea id="flagReasonInput" placeholder="" rows="3" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;padding:8px 11px;outline:none;width:100%;resize:none;transition:border-color 0.2s;"></textarea>
+    </div>
+    <div class="macts">
+      <button class="btn-cancel" onclick="closeFlagModal()">Cancel</button>
+      <button class="btn-save" onclick="confirmFlag()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- WORKOUT MODAL -->
 <div class="bkdrop" id="workoutModal">
   <div class="modal">
@@ -886,8 +909,8 @@ card.innerHTML=
 '<div class="day-actions">'+
 '<button class="dchk-btn" id="chk'+wk+'_'+di+'" onclick="togDay('+wk+','+di+')"><span class="dci">&#9675;</span>&nbsp;Mark Complete</button>'+
 '<div class="flag-row">'+
-'<button class="flag-btn rest" id="rest'+wk+'_'+di+'" onclick="togFlag('+wk+','+di+',\'rest\')">&#128722; Rest Day</button>'+
-'<button class="flag-btn sick" id="sick'+wk+'_'+di+'" onclick="togFlag('+wk+','+di+',\'sick\')">&#129298; Sick Day</button>'+
+'<button class="flag-btn rest" id="rest'+wk+'_'+di+'" onclick="openFlagModal('+wk+','+di+',\'rest\')">&#128564; Rest Day</button>'+
+'<button class="flag-btn sick" id="sick'+wk+'_'+di+'" onclick="openFlagModal('+wk+','+di+',\'sick\')">&#129298; Sick Day</button>'+
 '</div></div>';
 g.appendChild(card);});}
 
@@ -898,7 +921,7 @@ function rebuildPlan(){buildPlanShell();for(let w=1;w<=WEEKS;w++){for(let d=0;d<
 // Notes
 const noteEl=document.getElementById('note'+w+'_'+d);if(noteEl&&planData.notes&&planData.notes[w+'_'+d])noteEl.value=planData.notes[w+'_'+d];
 // Flags & completion
-updDayUI(w,d,planData.completed&&planData.completed[w+'_'+d],planData.flags&&planData.flags[w+'_'+d]);}
+updDayUI(w,d,planData.completed&&planData.completed[w+'_'+d],planData.flags&&planData.flags[w+'_'+d],planData.flagReasons&&planData.flagReasons[w+'_'+d]);}
 // Reflections
 if(planData.reflections&&planData.reflections[w]){const r=planData.reflections[w];['feel','rpe'].forEach(k=>{const el=document.getElementById('refl-'+k+'-'+w);if(el&&r[k])el.value=r[k];});['hi','note'].forEach(k=>{const el=document.getElementById('refl-'+k+'-'+w);if(el&&r[k])el.value=r[k];});}
 updWkSum(w);}};
@@ -912,10 +935,74 @@ async function saveNote(wk,di){if(!CU||isAdmin)return;const el=document.getEleme
 async function saveRefl(wk){if(!CU||isAdmin)return;const feel=document.getElementById('refl-feel-'+wk)?.value||'';const rpe=document.getElementById('refl-rpe-'+wk)?.value||'';const hi=document.getElementById('refl-hi-'+wk)?.value||'';const note=document.getElementById('refl-note-'+wk)?.value||'';await dbUpd('plans/'+CU.uid+'/reflections',{[wk]:{feel,rpe,hi,note,savedAt:Date.now()}});const s=document.getElementById('refl-saved-'+wk);if(s){s.classList.add('show');setTimeout(()=>s.classList.remove('show'),2000);}}
 async function togDay(wk,di){if(!CU||isAdmin)return;const k=wk+'_'+di,cur=planData.completed&&planData.completed[k];// Clear flags if completing
 const flag=planData.flags&&planData.flags[k];if(!cur&&flag){await dbUpd('plans/'+CU.uid+'/flags',{[k]:null});}await dbUpd('plans/'+CU.uid+'/completed',{[k]:!cur});}
-async function togFlag(wk,di,type){if(!CU||isAdmin)return;const k=wk+'_'+di;const cur=(planData.flags&&planData.flags[k])===type?null:type;// Clear completion if flagging
-if(cur){await dbUpd('plans/'+CU.uid+'/completed',{[k]:null});}await dbUpd('plans/'+CU.uid+'/flags',{[k]:cur});}
+// Flag modal state
+let _flagWk=null,_flagDi=null,_flagType=null;
 
-function updDayUI(wk,di,done,flag){const card=document.getElementById('dc'+wk+'_'+di),chk=document.getElementById('chk'+wk+'_'+di),restBtn=document.getElementById('rest'+wk+'_'+di),sickBtn=document.getElementById('sick'+wk+'_'+di),badge=document.getElementById('dsb'+wk+'_'+di);if(!card)return;card.classList.toggle('completed',!!done&&!flag);card.classList.toggle('rest-day',flag==='rest');card.classList.toggle('sick-day',flag==='sick');if(chk){chk.classList.toggle('done',!!done);chk.innerHTML=done?'<span class="dci">&#10003;</span>&nbsp;Completed!':'<span class="dci">&#9675;</span>&nbsp;Mark Complete';}if(restBtn)restBtn.classList.toggle('active',flag==='rest');if(sickBtn)sickBtn.classList.toggle('active',flag==='sick');if(badge){badge.className='day-status-badge';if(flag==='rest'){badge.classList.add('rest');badge.textContent='Rest Day';}else if(flag==='sick'){badge.classList.add('sick');badge.textContent='Sick Day';}}}
+function openFlagModal(wk,di,type){
+  // If already active, toggle off directly
+  const k=wk+'_'+di;
+  const cur=(planData.flags&&planData.flags[k]);
+  if(cur===type){togFlagDirect(wk,di,null);return;}
+  _flagWk=wk;_flagDi=di;_flagType=type;
+  document.getElementById('flagModalTitle').textContent=type==='rest'?'😴 Rest Day':'🤒 Sick Day';
+  document.getElementById('flagRestMsg').style.display=type==='rest'?'block':'none';
+  document.getElementById('flagSickMsg').style.display=type==='sick'?'block':'none';
+  document.getElementById('flagReasonLabel').textContent=type==='rest'?'Reason for rest day (optional)':'What are you feeling? (optional)';
+  document.getElementById('flagReasonInput').placeholder=type==='rest'?'e.g. scheduled rest, muscle fatigue, coach decision...':'e.g. cold, sore throat, injury...';
+  document.getElementById('flagReasonInput').value='';
+  // Pre-fill if existing reason
+  const existingReason=planData.flagReasons&&planData.flagReasons[k];
+  if(existingReason)document.getElementById('flagReasonInput').value=existingReason;
+  openModal('flagModal');
+}
+
+function closeFlagModal(){closeModal('flagModal');_flagWk=null;_flagDi=null;_flagType=null;}
+
+async function confirmFlag(){
+  if(_flagWk===null)return;
+  const reason=document.getElementById('flagReasonInput').value.trim();
+  closeFlagModal();
+  await togFlagDirect(_flagWk,_flagDi,_flagType,reason);
+}
+
+async function togFlagDirect(wk,di,type,reason){
+  if(!CU||isAdmin)return;
+  const k=wk+'_'+di;
+  const newType=type;
+  if(newType){await dbUpd('plans/'+CU.uid+'/completed',{[k]:null});}
+  await dbUpd('plans/'+CU.uid+'/flags',{[k]:newType||null});
+  if(reason!==undefined){await dbUpd('plans/'+CU.uid+'/flagReasons',{[k]:reason||null});}
+}
+
+async function togFlag(wk,di,type){
+  // Legacy - kept for safety
+  await togFlagDirect(wk,di,type);
+}
+
+function updDayUI(wk,di,done,flag,reason){
+  const card=document.getElementById('dc'+wk+'_'+di);
+  const chk=document.getElementById('chk'+wk+'_'+di);
+  const restBtn=document.getElementById('rest'+wk+'_'+di);
+  const sickBtn=document.getElementById('sick'+wk+'_'+di);
+  const badge=document.getElementById('dsb'+wk+'_'+di);
+  if(!card)return;
+  card.classList.toggle('completed',!!done&&!flag);
+  card.classList.toggle('rest-day',flag==='rest');
+  card.classList.toggle('sick-day',flag==='sick');
+  if(chk){chk.classList.toggle('done',!!done);chk.innerHTML=done?'<span class="dci">&#10003;</span>&nbsp;Completed!':'<span class="dci">&#9675;</span>&nbsp;Mark Complete';}
+  if(restBtn)restBtn.classList.toggle('active',flag==='rest');
+  if(sickBtn)sickBtn.classList.toggle('active',flag==='sick');
+  if(badge){
+    badge.className='day-status-badge';
+    if(flag==='rest'){
+      badge.classList.add('rest');
+      badge.innerHTML='😴 Rest Day'+(reason?'<span style="font-size:9px;opacity:0.7;display:block;margin-top:1px;">'+reason+'</span>':'');
+    } else if(flag==='sick'){
+      badge.classList.add('sick');
+      badge.innerHTML='🤒 Sick Day'+(reason?'<span style="font-size:9px;opacity:0.7;display:block;margin-top:1px;">'+reason+'</span>':'');
+    }
+  }
+}
 
 function updateProg(){const completed=planData.completed||{},flags=planData.flags||{};let done=0;for(let w=1;w<=WEEKS;w++)for(let d=0;d<7;d++){const k=w+'_'+d;if(completed[k]||flags[k])done++;}const pct=Math.round((done/TOTD)*100);document.getElementById('progFill').style.width=pct+'%';document.getElementById('progPct').textContent=pct+'%';document.getElementById('progDays').textContent=done+' / '+TOTD+' days';for(let w=1;w<=WEEKS;w++){let all=true;for(let d=0;d<7;d++){const k=w+'_'+d;if(!((planData.completed&&planData.completed[k])||(planData.flags&&planData.flags[k]))){all=false;break;}}const t=document.getElementById('pt'+w);if(t)t.classList.toggle('done',all);// Show/hide reflection
 const rb=document.getElementById('refl-box-'+w);const rl=document.getElementById('refl-locked-'+w);if(rb)rb.style.display=all?'block':'none';if(rl)rl.style.display=all?'none':'block';}}
