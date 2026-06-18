@@ -364,6 +364,65 @@ select option{background:#1a3050;color:#fff;}
 .prog-no-chart{padding:30px;text-align:center;font-size:11px;color:rgba(255,255,255,0.2);}
 @media(max-width:768px){#progressChartsGrid{grid-template-columns:1fr;}}
 
+
+/* LIGHT THEME */
+body.light-mode {
+  --deep:#f0f4f8;
+  --mid:#ffffff;
+  --surface:#e2eaf2;
+  --border:rgba(0,0,0,0.1);
+  --foam:#1a2a3a;
+  --gold:#a07830;
+  --gold-l:#b8922a;
+  background:#f0f4f8;
+  color:#1a2a3a;
+}
+body.light-mode .app-header{background:linear-gradient(135deg,#1a3050 0%,#2a4a70 100%);}
+body.light-mode .app-header .header-title{color:#fff;}
+body.light-mode .nav-tab{color:rgba(255,255,255,0.6);}
+body.light-mode .nav-tab.active{background:rgba(255,255,255,0.15);color:#fff;}
+body.light-mode .user-chip.admin{background:rgba(201,168,76,0.2);color:#8a6020;}
+body.light-mode .user-chip.athlete{background:rgba(78,174,209,0.15);color:#1a5a8a;}
+body.light-mode .hdr-btn{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);}
+body.light-mode .lib-sb{background:#e2eaf2;border-right-color:rgba(0,0,0,0.08);}
+body.light-mode .sdb{color:#4a6a8a;}
+body.light-mode .sdb.active{background:rgba(0,0,0,0.06);color:#1a2a3a;}
+body.light-mode .lib-main{background:#f0f4f8;}
+body.light-mode .wcard{background:#fff;border-color:rgba(0,0,0,0.08);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+body.light-mode .wcard-name{color:#1a2a3a;}
+body.light-mode .wcard-desc{color:#5a7a9a;}
+body.light-mode .result-card{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .rc-name{color:#1a2a3a;}
+body.light-mode .rc-desc{color:#6a8aaa;}
+body.light-mode .results-grid{background:#e8f0f8;border-color:rgba(0,0,0,0.06);}
+body.light-mode .dcard{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .slot{background:#f5f8fc;border-color:rgba(0,0,0,0.06);}
+body.light-mode select.tsel,body.light-mode select.wsel{background:#f5f8fc;border-color:rgba(0,0,0,0.12);color:#2a3a4a;}
+body.light-mode select.tsel option,body.light-mode select.wsel option{background:#fff;color:#1a2a3a;}
+body.light-mode .snote{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#2a3a4a;}
+body.light-mode .dchk-btn{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#5a7a9a;}
+body.light-mode .flag-btn{background:#f5f8fc;border-color:rgba(0,0,0,0.08);color:#5a7a9a;}
+body.light-mode .plan-wks{background:#e2eaf2;border-bottom-color:rgba(0,0,0,0.08);}
+body.light-mode .wtab{color:#5a7a9a;}
+body.light-mode .modal{background:#fff;border-color:rgba(0,0,0,0.1);}
+body.light-mode .modal h3{color:#1a2a3a;}
+body.light-mode .fg input,.light-mode .fg textarea,.light-mode .fg select{background:#f5f8fc;border-color:rgba(0,0,0,0.12);color:#1a2a3a;}
+body.light-mode .prog-banner{background:linear-gradient(90deg,#e2eaf2,#d5e5f5);}
+body.light-mode .prog-lbl{color:#5a7a9a;}
+body.light-mode .prog-days{color:#7a9aba;}
+body.light-mode .refl-box{background:rgba(46,196,182,0.05);border-color:rgba(46,196,182,0.2);}
+body.light-mode .refl-field textarea,.light-mode .refl-field select{background:#f5f8fc;border-color:rgba(0,0,0,0.1);color:#1a2a3a;}
+body.light-mode .prog-chart-card{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .prog-chart-title{color:#1a2a3a;}
+body.light-mode #workoutPanel{background:#fff;border-top-color:rgba(0,0,0,0.1);}
+body.light-mode #panelName{color:#1a2a3a;}
+body.light-mode #panelDesc{color:#4a6a8a;}
+body.light-mode .ath-tbl td{border-bottom-color:rgba(0,0,0,0.05);}
+body.light-mode .cr-athlete-block{background:#fff;border-color:rgba(0,0,0,0.08);}
+body.light-mode .cr-athlete-hdr{background:#f5f8fc;}
+body.light-mode .cr-test{background:#f0f4f8;}
+body.light-mode .cr-athlete-name{color:#1a2a3a;}
+
 @media print{
   #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
   html,body{height:auto;overflow:visible;}
@@ -446,6 +505,7 @@ select option{background:#1a3050;color:#fff;}
     <div class="header-right">
       <div class="user-chip" id="uChip"><div class="chip-dot"></div><span id="uChipName"></span></div>
       <button class="hdr-btn" id="btnPw" onclick="openModal('pwModal')" style="display:none">Password</button>
+      <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
       <button class="hdr-btn" onclick="doLogout()">Sign Out</button>
       <button class="menu-btn" onclick="toggleMobMenu()" id="menuBtn"><span></span><span></span><span></span></button>
     </div>
@@ -812,17 +872,37 @@ select option{background:#1a3050;color:#fff;}
     <div class="macts"><button class="btn-cancel" onclick="closeModal('pwModal')">Cancel</button><button class="btn-save" onclick="doChangePw()">Update</button></div>
   </div>
 </div>
-<!-- POPOVER -->
-<div class="pop" id="pop">
-  <button class="pop-close" onclick="closePop()">&#x2715;</button>
-  <div id="popMed"></div>
-  <div class="pop-body">
-    <div class="pop-type" id="popType"></div>
-    <div class="pop-name" id="popName"></div>
-    <div class="pop-desc" id="popDesc"></div>
-    <a class="pop-link" id="popLink" target="_blank" href="#">Open in YouTube</a>
+<!-- WORKOUT DETAIL PANEL (slide-up mini player) -->
+<div id="workoutPanel" style="
+  position:fixed;bottom:0;left:0;right:0;z-index:600;
+  background:#0f1e35;border-top:1px solid rgba(255,255,255,0.12);
+  border-radius:16px 16px 0 0;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  max-height:85vh;overflow-y:auto;
+">
+  <div style="display:flex;align-items:center;padding:12px 16px 8px;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 0 calc(50% - 18px);"></div>
+    <button onclick="closeWorkoutPanel()" style="position:absolute;right:14px;top:10px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">&#x2715;</button>
+  </div>
+  <!-- Video player -->
+  <div id="panelVideoWrap" style="display:none;background:#000;position:relative;padding-bottom:56.25%;height:0;">
+    <iframe id="panelIframe" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen allow="autoplay"></iframe>
+  </div>
+  <!-- Image -->
+  <div id="panelImageWrap" style="display:none;">
+    <img id="panelImage" style="width:100%;max-height:260px;object-fit:cover;display:block;" alt="">
+  </div>
+  <!-- Info -->
+  <div style="padding:14px 16px 20px;">
+    <div id="panelType" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;"></div>
+    <div id="panelName" style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;margin-bottom:8px;"></div>
+    <div id="panelDesc" style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;"></div>
+    <div id="panelExercises" style="display:none;"></div>
+    <a id="panelLink" target="_blank" href="#" style="display:none;font-size:11px;color:#4ea6e8;text-decoration:none;font-family:'DM Mono',monospace;padding:7px 14px;background:rgba(78,174,209,0.1);border:1px solid rgba(78,174,209,0.25);border-radius:5px;display:inline-flex;align-items:center;gap:6px;">▶ Open in YouTube</a>
   </div>
 </div>
+<div id="workoutPanelOverlay" onclick="closeWorkoutPanel()" style="position:fixed;inset:0;background:rgba(0,0,0,0);z-index:599;display:none;transition:background 0.3s;"></div>
 <!-- FAB -->
 <div class="fab" id="fabEl" style="display:none">
   <button class="fb fb-g" onclick="clearWeek()">Clear Week</button>
@@ -1170,11 +1250,79 @@ function toggleCrBlock(uid2){
 }
 
 // PAGE
-function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.mob-nav-item').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');document.querySelectorAll('.nav-tab, .mob-nav-item').forEach(t=>{if((n==='library'&&t.textContent.includes('Library'))||(n==='planner'&&t.textContent.includes('Plan'))||(n==='athletes'&&t.textContent.includes('Athletes')))t.classList.add('active');});document.getElementById('fabEl').style.display=n==='planner'?'flex':'none';if(n==='athletes'&&isAdmin){loadAthTable();}if(n==='results')initResultsPage();}
-function showPop(sid,evt){const ws=document.getElementById('ws'+sid);const wid=ws&&ws.value;if(!wid)return;const w=library[wid];if(!w)return;const c=TC[w.type]||{};const pop=document.getElementById('pop');let med='';if(w.ytUrl){const v=ytId(w.ytUrl);med='<div class="pop-yt"><iframe src="https://www.youtube.com/embed/'+v+'?rel=0" allowfullscreen></iframe></div>';}else if(w.imageDataUrl)med='<img class="pop-media" src="'+w.imageDataUrl+'" alt="">';document.getElementById('popMed').innerHTML=med;document.getElementById('popType').textContent=w.type;document.getElementById('popType').style.color=c.color||'#aaa';document.getElementById('popName').textContent=w.name;document.getElementById('popDesc').textContent=w.desc||'';const lnk=document.getElementById('popLink');if(w.ytUrl){lnk.href=w.ytUrl;lnk.style.display='block';}else lnk.style.display='none';pop.classList.add('open');const r=evt.target.getBoundingClientRect();let lft=r.right+8;if(lft+295>window.innerWidth-8)lft=r.left-303;let top=r.top;if(top+420>window.innerHeight)top=window.innerHeight-430;pop.style.left=Math.max(8,lft)+'px';pop.style.top=Math.max(8,top)+'px';}
-function openYtPop(id,evt){const w=library[id];if(!w||!w.ytUrl)return;const v=ytId(w.ytUrl),c=TC[w.type]||{},pop=document.getElementById('pop');document.getElementById('popMed').innerHTML='<div class="pop-yt"><iframe src="https://www.youtube.com/embed/'+v+'?autoplay=1&rel=0" allowfullscreen></iframe></div>';document.getElementById('popType').textContent=w.type;document.getElementById('popType').style.color=c.color||'#aaa';document.getElementById('popName').textContent=w.name;document.getElementById('popDesc').textContent=w.desc||'';const lnk=document.getElementById('popLink');lnk.href=w.ytUrl;lnk.style.display='block';pop.classList.add('open');const r=evt.target.getBoundingClientRect();let lft=r.right+8;if(lft+295>window.innerWidth-8)lft=r.left-303;pop.style.left=Math.max(8,lft)+'px';pop.style.top=Math.max(8,Math.min(r.top,window.innerHeight-430))+'px';}
-function closePop(){document.getElementById('pop').classList.remove('open');}
-document.addEventListener('click',e=>{if(!e.target.closest('.pop')&&!e.target.closest('.vbtn')&&!e.target.closest('.wcard-yt'))closePop();});
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-item').forEach(t=>t.classList.remove('active'));
+  const pg=document.getElementById('page-'+n);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-tab, .mob-nav-item').forEach(t=>{
+    const txt=t.textContent.toLowerCase();
+    if((n==='library'&&txt.includes('library'))||(n==='planner'&&txt.includes('plan')&&!txt.includes('progress'))||(n==='athletes'&&txt.includes('athlete'))||(n==='results'&&txt.includes('result'))||(n==='progress'&&txt.includes('progress')))
+      t.classList.add('active');
+  });
+  document.getElementById('fabEl').style.display=n==='planner'?'flex':'none';
+  if(n==='athletes'&&isAdmin)loadAthTable();
+  if(n==='results')initResultsPage();
+  if(n==='progress')initProgressPage();
+}
+function openWorkoutPanel(w, autoplay){
+  if(!w)return;
+  const c=TC[w.type]||{};
+  const panel=document.getElementById('workoutPanel');
+  const overlay=document.getElementById('workoutPanelOverlay');
+  const videoWrap=document.getElementById('panelVideoWrap');
+  const imgWrap=document.getElementById('panelImageWrap');
+  // Video
+  if(w.ytUrl){
+    const v=ytId(w.ytUrl);
+    document.getElementById('panelIframe').src='https://www.youtube.com/embed/'+v+'?'+(autoplay?'autoplay=1&':'')+'rel=0&modestbranding=1';
+    videoWrap.style.display='block';
+    imgWrap.style.display='none';
+  } else if(w.imageDataUrl){
+    document.getElementById('panelImage').src=w.imageDataUrl;
+    imgWrap.style.display='block';
+    videoWrap.style.display='none';
+  } else {
+    videoWrap.style.display='none';
+    imgWrap.style.display='none';
+  }
+  document.getElementById('panelType').textContent=w.type;
+  document.getElementById('panelType').style.color=c.color||'#aaa';
+  document.getElementById('panelName').textContent=w.name;
+  document.getElementById('panelDesc').textContent=w.desc||'';
+  const lnk=document.getElementById('panelLink');
+  if(w.ytUrl){lnk.href=w.ytUrl;lnk.style.display='inline-flex';}
+  else lnk.style.display='none';
+  // Animate in
+  overlay.style.display='block';
+  setTimeout(()=>{overlay.style.background='rgba(0,0,0,0.45)';panel.style.transform='translateY(0)';},10);
+}
+
+function showPop(sid,evt){
+  const ws=document.getElementById('ws'+sid);
+  const wid=ws&&ws.value;
+  if(!wid)return;
+  openWorkoutPanel(library[wid], false);
+}
+
+function openYtPop(id,evt){
+  openWorkoutPanel(library[id], true);
+}
+
+function closeWorkoutPanel(){
+  const panel=document.getElementById('workoutPanel');
+  const overlay=document.getElementById('workoutPanelOverlay');
+  panel.style.transform='translateY(100%)';
+  overlay.style.background='rgba(0,0,0,0)';
+  setTimeout(()=>{
+    overlay.style.display='none';
+    // Stop video
+    const iframe=document.getElementById('panelIframe');
+    iframe.src='';
+  },300);
+}
+function closePop(){closeWorkoutPanel();}
 
 // RESULTS
 function parseTime(s){const p=s.trim().split(':');if(p.length===2){return parseInt(p[0])*60+parseFloat(p[1]);}return parseFloat(s)||null;}
@@ -1328,14 +1476,17 @@ function getStdForValue(val, meta){
   }
 }
 
-function initProgressPage(){
+async function initProgressPage(){
   const tag=document.getElementById('progressAthleteTag');
   if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}
-  if(!resultsHistory.length){
-    // Try loading if not yet loaded
-    loadResultsHistory().then(()=>renderProgressCharts());
+  if(isAdmin){
+    document.getElementById('progressNoData').style.display='block';
+    document.getElementById('progressCharts').style.display='none';
+    document.getElementById('progressNoData').innerHTML='<div style="font-size:32px;margin-bottom:10px;">📊</div><p style="font-size:13px;">Progress charts are for athletes only.</p>';
     return;
   }
+  // Always reload fresh from Firebase
+  await loadResultsHistory();
   renderProgressCharts();
 }
 
@@ -1455,6 +1606,19 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.bkdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
 switchAuthTab('signin');
+
+// THEME TOGGLE
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light-mode');
+  document.getElementById('themeBtn').textContent=isLight?'🌙':'☀️';
+  localStorage.setItem('insynchTheme',isLight?'light':'dark');
+}
+function applyStoredTheme(){
+  const saved=localStorage.getItem('insynchTheme');
+  if(saved==='light'){document.body.classList.add('light-mode');const btn=document.getElementById('themeBtn');if(btn)btn.textContent='🌙';}
+}
+applyStoredTheme();
+
 </script>
 </body>
 </html>
