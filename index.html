@@ -100,19 +100,19 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .prog-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--gold-l);white-space:nowrap;min-width:38px;text-align:right;}
 .prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
 /* PAGES */
-.app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.page{display:none;flex:1;overflow-y:auto;height:100%;-webkit-overflow-scrolling:touch;}
+.app-body{flex:1;position:relative;min-height:0;}
+.page{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .page.active{display:block;}
 /* LIBRARY */
-.lib-layout{display:flex;min-height:100%;}
-.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
+.lib-layout{display:flex;height:100%;}
+.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;position:sticky;top:0;align-self:flex-start;max-height:100vh;}
 .sdb{width:100%;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.46);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left;transition:all 0.15s;position:relative;}
 .sdb:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
 .sdb.active{background:rgba(255,255,255,0.05);color:#fff;}
 .sdb.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);border-radius:0 2px 2px 0;}
 .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .scnt{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:10px;color:rgba(255,255,255,0.3);}
-.lib-main{flex:1;padding:18px 20px;overflow-y:auto;}
+.lib-main{flex:1;padding:18px 20px;}
 .lib-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .lib-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
 .btn-add{padding:6px 12px;background:var(--gold);color:var(--deep);border:none;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px;transition:background 0.2s;white-space:nowrap;}
@@ -172,7 +172,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .pm{width:80px;background:rgba(255,255,255,0.07);border-radius:6px;height:5px;overflow:hidden;display:inline-block;vertical-align:middle;}
 .pmf{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:6px;}
 /* PLANNER */
-.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;}
+.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;position:sticky;top:0;z-index:10;-webkit-overflow-scrolling:touch;}
 .wtab{padding:4px 11px;border-radius:18px;cursor:pointer;border:1px solid transparent;font-size:11px;color:rgba(255,255,255,0.36);display:flex;align-items:center;gap:4px;transition:all 0.15s;font-weight:500;white-space:nowrap;flex-shrink:0;}
 .wtab:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
 .wtab.active{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.28);color:var(--gold-l);}
@@ -438,7 +438,7 @@ select option{background:#1a3050;color:#fff;}
     <div class="header-title"><span>In Synch Artistic Swimming</span>Training Planner</div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showPage('library')">Library</button>
-      <button class="nav-tab" onclick="showPage('planner')">My Plan</button>
+      <button class="nav-tab" id="navPlanner" onclick="showPage('planner')">My Plan</button>
       <button class="nav-tab" id="navAth" onclick="showPage('athletes')" style="display:none">Athletes</button>
       <button class="nav-tab" id="navResults" onclick="showPage('results')">Results</button>
       <button class="nav-tab" id="navProgress" onclick="showPage('progress')">My Progress</button>
@@ -453,7 +453,7 @@ select option{background:#1a3050;color:#fff;}
   <!-- Mobile drawer -->
   <div class="mob-drawer" id="mobDrawer">
     <button class="mob-nav-item active" onclick="showPage('library');toggleMobMenu()">📚 Library</button>
-    <button class="mob-nav-item" onclick="showPage('planner');toggleMobMenu()">📅 My Plan</button>
+    <button class="mob-nav-item" id="mobNavPlanner" onclick="showPage('planner');toggleMobMenu()">📅 My Plan</button>
     <button class="mob-nav-item" id="mobNavAth" onclick="showPage('athletes');toggleMobMenu()" style="display:none">👥 Athletes</button>
     <button class="mob-nav-item" id="mobBtnPw" onclick="openModal('pwModal');toggleMobMenu()" style="display:none">🔑 Change Password</button>
     <button class="mob-nav-item" onclick="doLogout()">Sign Out</button>
@@ -836,7 +836,7 @@ async function doLogout(){await window._fbFns.signOut(window._auth);}
 async function doCreateAth(){const n=document.getElementById('caName').value.trim(),e=document.getElementById('caEmail').value.trim(),p=document.getElementById('caPw').value,err=document.getElementById('caErr');if(!n||!e||!p){showErr(err,'Please fill all fields.');return;}if(p.length<6){showErr(err,'Password must be 6+ characters.');return;}try{const res=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+window._auth.app.options.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});const d=await res.json();if(d.error){showErr(err,d.error.message);return;}await dbSet('users/'+d.localId,{name:n,email:e,role:'athlete',createdAt:Date.now()});closeModal('createAthModal');['caName','caEmail','caPw'].forEach(id=>document.getElementById(id).value='');alert('Account created for '+n+'. They can sign in with: '+e);loadAthTable();}catch(ex){showErr(err,'Error: '+ex.message);}}
 async function doChangePw(){const p1=document.getElementById('pw1').value,p2=document.getElementById('pw2').value,err=document.getElementById('pwErr');if(p1.length<6){showErr(err,'Minimum 6 characters.');return;}if(p1!==p2){showErr(err,'Passwords do not match.');return;}try{await window._fbFns.updatePassword(window._auth.currentUser,p1);closeModal('pwModal');alert('Password updated.');}catch(ex){showErr(err,authErr(ex.code));}}
 
-function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('navProgress').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
+function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('navProgress').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('navPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
 
 function toggleMobMenu(){const d=document.getElementById('mobDrawer');d.classList.toggle('open');}
 document.addEventListener('click',e=>{const d=document.getElementById('mobDrawer');if(d.classList.contains('open')&&!e.target.closest('.mob-drawer')&&!e.target.closest('.menu-btn'))d.classList.remove('open');});
