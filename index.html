@@ -100,19 +100,19 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .prog-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--gold-l);white-space:nowrap;min-width:38px;text-align:right;}
 .prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
 /* PAGES */
-.app-body{flex:1;position:relative;min-height:0;}
-.page{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.page.active{display:block;}
+.app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.page{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;}
+.page.active{display:flex;flex-direction:column;}
 /* LIBRARY */
-.lib-layout{display:flex;height:100%;}
-.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;position:sticky;top:0;align-self:flex-start;max-height:100vh;}
+.lib-layout{display:flex;flex:1;min-height:0;overflow:hidden;}
+.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
 .sdb{width:100%;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.46);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left;transition:all 0.15s;position:relative;}
 .sdb:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
 .sdb.active{background:rgba(255,255,255,0.05);color:#fff;}
 .sdb.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);border-radius:0 2px 2px 0;}
 .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .scnt{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:10px;color:rgba(255,255,255,0.3);}
-.lib-main{flex:1;padding:18px 20px;}
+.lib-main{flex:1;padding:18px 20px;overflow-y:auto;min-height:0;}
 .lib-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .lib-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
 .btn-add{padding:6px 12px;background:var(--gold);color:var(--deep);border:none;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px;transition:background 0.2s;white-space:nowrap;}
@@ -172,7 +172,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .pm{width:80px;background:rgba(255,255,255,0.07);border-radius:6px;height:5px;overflow:hidden;display:inline-block;vertical-align:middle;}
 .pmf{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:6px;}
 /* PLANNER */
-.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;position:sticky;top:0;z-index:10;-webkit-overflow-scrolling:touch;}
+.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;}
 .wtab{padding:4px 11px;border-radius:18px;cursor:pointer;border:1px solid transparent;font-size:11px;color:rgba(255,255,255,0.36);display:flex;align-items:center;gap:4px;transition:all 0.15s;font-weight:500;white-space:nowrap;flex-shrink:0;}
 .wtab:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
 .wtab.active{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.28);color:var(--gold-l);}
@@ -181,7 +181,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .wtab.warn .wdot{display:block;}
 .wchk{font-size:9px;display:none;}
 .wtab.done .wchk{display:inline;}
-.plan-body{padding:14px 16px 80px;}
+.plan-body{flex:1;overflow-y:auto;padding:14px 16px 80px;min-height:0;-webkit-overflow-scrolling:touch;}
 .wkp{display:none;}.wkp.active{display:block;}
 .wkh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
 .wkt{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
@@ -547,7 +547,7 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
     </div>
     <!-- MY PROGRESS PAGE -->
     <div id="page-progress" class="page">
-      <div style="padding:18px 20px;">
+      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Progress</h2>
           <div id="progressAthleteTag" style="padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;display:none;"></div>
@@ -569,7 +569,7 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
 
     <!-- ATHLETES PAGE -->
     <div id="page-athletes" class="page">
-      <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
         <!-- Sub-tabs -->
         <div style="display:flex;align-items:center;gap:6px;padding:12px 20px 0;background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
           <button class="ath-subtab active" id="subtab-accounts" onclick="switchAthTab('accounts')">&#128101; Accounts &amp; Progress</button>
@@ -577,11 +577,11 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
           <button class="btn-add" onclick="openModal('createAthModal')" style="margin-left:auto;margin-bottom:8px">+ Create Account</button>
         </div>
         <!-- Accounts tab -->
-        <div id="ath-panel-accounts" style="padding:18px 20px;">
+        <div id="ath-panel-accounts" style="flex:1;overflow-y:auto;padding:18px 20px;">
           <div id="athTableWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p></div>
         </div>
         <!-- Results tab -->
-        <div id="ath-panel-results" style="padding:18px 20px;display:none;">
+        <div id="ath-panel-results" style="flex:1;overflow-y:auto;padding:18px 20px;display:none;">
           <div id="coachResultsWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p></div>
         </div>
       </div>
@@ -590,7 +590,7 @@ body.light-mode .cr-athlete-name{color:#1a2a3a;}
 
     <!-- RESULTS PAGE -->
     <div id="page-results" class="page">
-      <div style="padding:18px 20px;">
+      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
           <div id="resultsAthleteTag" style="display:none;padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;"></div>
@@ -1364,12 +1364,12 @@ async function loadResultsHistory(){
   if(!CU||isAdmin)return;
   const snap=await dbGet('results/'+CU.uid);
   const raw=snap.val()||{};
-  // Support both old flat format and new history format
   resultsHistory=Object.entries(raw)
     .filter(([k])=>k.startsWith('entry_'))
     .map(([k,v])=>({id:k,...v,dateLabel:formatDate(v.date)}))
     .sort((a,b)=>new Date(a.date)-new Date(b.date));
   renderHistoryBar();
+  return resultsHistory;
 }
 
 function renderHistoryBar(){
@@ -1480,13 +1480,19 @@ async function initProgressPage(){
   const tag=document.getElementById('progressAthleteTag');
   if(tag&&CU){tag.style.display='block';tag.textContent=CU.name;}
   if(isAdmin){
-    document.getElementById('progressNoData').style.display='block';
-    document.getElementById('progressCharts').style.display='none';
-    document.getElementById('progressNoData').innerHTML='<div style="font-size:32px;margin-bottom:10px;">📊</div><p style="font-size:13px;">Progress charts are for athletes only.</p>';
+    const nd=document.getElementById('progressNoData');
+    const cd=document.getElementById('progressCharts');
+    if(nd){nd.style.display='block';nd.innerHTML='<div style="font-size:32px;margin-bottom:10px;">📊</div><p style="font-size:13px;">Progress charts are for athletes only.</p>';}
+    if(cd)cd.style.display='none';
     return;
   }
-  // Always reload fresh from Firebase
-  await loadResultsHistory();
+  // Show loading state
+  const nd=document.getElementById('progressNoData');
+  const cd=document.getElementById('progressCharts');
+  if(nd){nd.style.display='block';nd.innerHTML='<div style="font-size:24px;margin-bottom:10px;">⏳</div><p style="font-size:13px;">Loading your results...</p>';}
+  if(cd)cd.style.display='none';
+  // Load fresh from Firebase every time
+  const loaded=await loadResultsHistory();
   renderProgressCharts();
 }
 
