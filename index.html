@@ -101,18 +101,18 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .prog-days{font-size:11px;color:rgba(255,255,255,0.28);white-space:nowrap;}
 /* PAGES */
 .app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-.page{display:none;flex:1;min-height:0;}
-.page.active{display:flex;flex-direction:column;overflow:hidden;}
+.page{display:none;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.page.active{display:block;}
 /* LIBRARY */
-.lib-layout{display:flex;flex:1;min-height:0;overflow:hidden;}
-.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;flex-shrink:0;width:220px;}
+.lib-layout{display:flex;min-height:100%;}
+.lib-sb{background:rgba(0,0,0,0.2);border-right:1px solid var(--border);padding:12px 0;flex-shrink:0;width:220px;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow-y:auto;}
 .sdb{width:100%;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.46);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left;transition:all 0.15s;position:relative;}
 .sdb:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
 .sdb.active{background:rgba(255,255,255,0.05);color:#fff;}
 .sdb.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);border-radius:0 2px 2px 0;}
 .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .scnt{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:10px;color:rgba(255,255,255,0.3);}
-.lib-main{flex:1;padding:18px 20px;overflow-y:auto;min-height:0;}
+.lib-main{flex:1;padding:18px 20px;min-width:0;}
 .lib-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .lib-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
 .btn-add{padding:6px 12px;background:var(--gold);color:var(--deep);border:none;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px;transition:background 0.2s;white-space:nowrap;}
@@ -172,7 +172,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .pm{width:80px;background:rgba(255,255,255,0.07);border-radius:6px;height:5px;overflow:hidden;display:inline-block;vertical-align:middle;}
 .pmf{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:6px;}
 /* PLANNER */
-.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;}
+.plan-wks{background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;gap:5px;overflow-x:auto;position:sticky;top:0;z-index:5;}
 .wtab{padding:4px 11px;border-radius:18px;cursor:pointer;border:1px solid transparent;font-size:11px;color:rgba(255,255,255,0.36);display:flex;align-items:center;gap:4px;transition:all 0.15s;font-weight:500;white-space:nowrap;flex-shrink:0;}
 .wtab:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
 .wtab.active{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.28);color:var(--gold-l);}
@@ -181,7 +181,7 @@ body{background:var(--deep);color:var(--foam);font-family:'Inter',sans-serif;fon
 .wtab.warn .wdot{display:block;}
 .wchk{font-size:9px;display:none;}
 .wtab.done .wchk{display:inline;}
-.plan-body{flex:1;overflow-y:auto;padding:14px 16px 80px;min-height:0;-webkit-overflow-scrolling:touch;}
+.plan-body{padding:14px 16px 80px;}
 .wkp{display:none;}.wkp.active{display:block;}
 .wkh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
 .wkt{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
@@ -528,6 +528,81 @@ body.light-mode .btn-login{background:#a07830;color:#fff;}
 body.light-mode .btn-login:hover{background:#8a6018;}
 body.light-mode .login-hint{color:#6a8aaa;}
 
+
+.chart-axis-text{fill:rgba(255,255,255,0.35);}
+.chart-axis-line{stroke:rgba(255,255,255,0.12);}
+body.light-mode .chart-axis-text{fill:#3a5a7a;}
+body.light-mode .chart-axis-line{stroke:rgba(0,0,0,0.2);}
+
+
+/* Inline-styled text elements that need light mode override */
+body.light-mode #progressNoData,
+body.light-mode #progressCharts p,
+body.light-mode .plan-body > p,
+body.light-mode .lib-main > p {color:#4a6a8a !important;}
+body.light-mode p[style*="color:rgba(255,255,255"]{color:#4a6a8a !important;}
+body.light-mode span[style*="color:rgba(255,255,255"]{color:#4a6a8a !important;}
+body.light-mode div[style*="color:rgba(255,255,255"]{color:#4a6a8a !important;}
+body.light-mode label[style*="color:rgba(255,255,255"]{color:#3a5a7a !important;}
+/* Specific known trouble spots */
+body.light-mode #resultsAthleteTag,
+body.light-mode #progressAthleteTag{color:#7a5010 !important;}
+body.light-mode .vbtn{background:#f0f4f8;border-color:rgba(0,0,0,0.1);color:#3a5a7a;}
+body.light-mode .vbtn:hover{background:#e2eaf2;color:#1a2a3a;}
+body.light-mode .fab-g{background:#fff;color:#3a5a7a;border-color:rgba(0,0,0,0.15);}
+body.light-mode .fab-g:hover{background:#f0f4f8;}
+body.light-mode .fab-p{color:#fff;}
+body.light-mode .refl-locked{color:#6a8aaa !important;background:rgba(0,0,0,0.03) !important;border-color:rgba(0,0,0,0.12) !important;}
+body.light-mode .wcard-meta span{color:#5a7a9a !important;}
+body.light-mode #resultsHistoryBar span{color:#4a6a8a !important;}
+body.light-mode #resultsHistoryBar button{background:#fff;border-color:rgba(0,0,0,0.12);color:#3a5a7a;}
+body.light-mode #btnSaveResults label{color:#3a5a7a !important;}
+body.light-mode .prog-filter-btn{color:#3a5a7a;}
+
+
+.page-subtext{color:rgba(255,255,255,0.3);}
+body.light-mode .page-subtext{color:#4a6a8a;}
+
+
+body.light-mode .results-date-input{background:#fff !important;border-color:rgba(0,0,0,0.15) !important;color:#1a2a3a !important;color-scheme:light !important;}
+
+
+.wcard-type-label{color:rgba(255,255,255,0.4);}
+body.light-mode .wcard-type-label{color:#3a5a7a;}
+
+
+/* SAFETY NET: catch all remaining inline rgba(255,255,255,*) text colors in light mode */
+body.light-mode [style*="color:rgba(255,255,255"]{color:#3a5a7a !important;}
+body.light-mode [style*="color: rgba(255,255,255"]{color:#3a5a7a !important;}
+body.light-mode h1[style*="rgba(255,255,255"],
+body.light-mode h2[style*="rgba(255,255,255"],
+body.light-mode h3[style*="rgba(255,255,255"],
+body.light-mode h4[style*="rgba(255,255,255"]{color:#1a2a3a !important;}
+/* Borders that used rgba(255,255,255,*) also need darkening for visibility */
+body.light-mode [style*="border:1px solid rgba(255,255,255"],
+body.light-mode [style*="border-color:rgba(255,255,255"]{border-color:rgba(0,0,0,0.15) !important;}
+/* Background rgba(255,255,255,low-opacity) elements (cards/panels) need light bg */
+body.light-mode [style*="background:rgba(255,255,255,0.0"],
+body.light-mode [style*="background:rgba(255,255,255,0.1"]{background:#f5f8fc !important;}
+
+
+.ex-count-badge{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,0.7);color:#fff;font-size:9px;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:10px;letter-spacing:0.3px;}
+
+
+.panel-exercises-wrap{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.panel-exercise-item{display:flex;gap:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;}
+.panel-exercise-num{width:22px;height:22px;border-radius:50%;background:rgba(201,168,76,0.15);color:var(--gold-l);font-family:'DM Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.panel-exercise-body{flex:1;min-width:0;}
+.panel-exercise-name{font-weight:600;font-size:13px;color:#fff;margin-bottom:3px;}
+.panel-exercise-desc{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;margin-bottom:6px;}
+.panel-exercise-video{position:relative;padding-bottom:56.25%;height:0;border-radius:6px;overflow:hidden;background:#000;margin-top:4px;}
+.panel-exercise-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.panel-exercise-link{font-size:11px;color:#4ea6e8;text-decoration:none;font-family:'DM Mono',monospace;}
+body.light-mode .panel-exercise-item{background:#f5f8fc;border-color:rgba(0,0,0,0.08);}
+body.light-mode .panel-exercise-name{color:#1a2a3a;}
+body.light-mode .panel-exercise-desc{color:#4a6a8a;}
+body.light-mode .panel-exercise-num{background:rgba(160,120,48,0.12);color:#7a5010;}
+
 @media print{
   #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
   html,body{height:auto;overflow:visible;}
@@ -639,6 +714,7 @@ body.light-mode .login-hint{color:#6a8aaa;}
           <div class="lib-hdr">
             <h2 id="libTitle">All Workouts</h2>
             <button class="btn-add" id="btnAddW" onclick="openAddW()" style="display:none">+ Add Workout</button>
+            <button class="btn-add" id="btnBulkImport" onclick="renderImportPreview();openModal('bulkImportModal')" style="display:none;background:rgba(78,174,209,0.15);color:#7dd4f0;border:1px solid rgba(78,174,209,0.3);">&#128229; Import from Spreadsheet</button>
             <div class="ro-note" id="roNote" style="display:none">View only</div>
           </div>
           <div class="cgrid" id="cgrid"></div>
@@ -652,12 +728,12 @@ body.light-mode .login-hint{color:#6a8aaa;}
     </div>
     <!-- MY PROGRESS PAGE -->
     <div id="page-progress" class="page">
-      <div style="overflow-y:auto;padding:18px 20px;height:100%;">
+      <div style="padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Progress</h2>
           <div id="progressAthleteTag" style="padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;display:none;"></div>
         </div>
-        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:18px;">Your test results over time. Each point is a submission — hover to see the date and value.</p>
+        <p class="page-subtext" style="font-size:11px;margin-bottom:18px;">Your test results over time. Each point is a submission — hover to see the date and value.</p>
         <div id="progressNoData" style="display:none;text-align:center;padding:40px 20px;color:rgba(255,255,255,0.2);">
           <div style="font-size:32px;margin-bottom:10px;">📊</div>
           <p style="font-size:13px;">No results submitted yet.</p>
@@ -674,19 +750,19 @@ body.light-mode .login-hint{color:#6a8aaa;}
 
     <!-- ATHLETES PAGE -->
     <div id="page-athletes" class="page">
-      <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+      <div>
         <!-- Sub-tabs -->
-        <div style="display:flex;align-items:center;gap:6px;padding:12px 20px 0;background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;padding:12px 20px 0;background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:5;">
           <button class="ath-subtab active" id="subtab-accounts" onclick="switchAthTab('accounts')">&#128101; Accounts &amp; Progress</button>
           <button class="ath-subtab" id="subtab-results" onclick="switchAthTab('results')">&#127942; Results by Athlete</button>
           <button class="btn-add" onclick="openModal('createAthModal')" style="margin-left:auto;margin-bottom:8px">+ Create Account</button>
         </div>
         <!-- Accounts tab -->
-        <div id="ath-panel-accounts" style="overflow-y:auto;padding:18px 20px;height:100%;">
+        <div id="ath-panel-accounts" style="padding:18px 20px;">
           <div id="athTableWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading...</p></div>
         </div>
         <!-- Results tab -->
-        <div id="ath-panel-results" style="overflow-y:auto;padding:18px 20px;height:100%;display:none;">
+        <div id="ath-panel-results" style="padding:18px 20px;display:none;">
           <div id="coachResultsWrap"><p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p></div>
         </div>
       </div>
@@ -695,23 +771,23 @@ body.light-mode .login-hint{color:#6a8aaa;}
 
     <!-- RESULTS PAGE -->
     <div id="page-results" class="page">
-      <div style="overflow-y:auto;padding:18px 20px;height:100%;">
+      <div style="padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
           <div id="resultsAthleteTag" style="display:none;padding:4px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:12px;font-size:11px;color:var(--gold-l);font-family:'DM Mono',monospace;"></div>
           <div id="btnSaveResults" style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div style="display:flex;flex-direction:column;gap:2px;">
-              <label style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.35);">Test Date</label>
-              <input type="date" id="resultsDate" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;padding:5px 9px;outline:none;color-scheme:dark;">
+              <label class="page-subtext" style="font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;">Test Date</label>
+              <input type="date" id="resultsDate" class="results-date-input" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;padding:5px 9px;outline:none;color-scheme:dark;">
             </div>
             <button class="btn-add" onclick="saveResults()" style="margin-top:14px;">&#128190; Save &amp; Submit</button>
           </div>
         </div>
-        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">Track your GB National Youth/Junior Club Test scores. 🥇 Gold &nbsp;🟠 Amber &nbsp;🔴 Red</p>
+        <p class="page-subtext" style="font-size:11px;margin-bottom:10px;">Track your GB National Youth/Junior Club Test scores. 🥇 Gold &nbsp;🟠 Amber &nbsp;🔴 Red</p>
         <!-- Submission history -->
         <div id="resultsHistoryBar" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:10px 14px;margin-bottom:16px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);">Past Submissions</span>
+            <span class="page-subtext" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Past Submissions</span>
             <button onclick="clearResultsForm()" style="margin-left:auto;padding:3px 9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:rgba(255,255,255,0.4);font-size:10px;cursor:pointer;font-family:'Inter',sans-serif;">+ New Entry</button>
           </div>
           <div id="resultsHistoryList" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
@@ -933,29 +1009,78 @@ body.light-mode .login-hint{color:#6a8aaa;}
   </div>
 </div>
 
+<!-- BULK IMPORT MODAL -->
+<div class="bkdrop" id="bulkImportModal">
+  <div class="modal" style="max-width:480px;">
+    <h3>&#128229; Import Workouts from Spreadsheet</h3>
+    <p style="font-size:12px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px;">This will import <strong id="importCount">17</strong> workouts from your "8 Week Training Plan" spreadsheet, including all exercises, descriptions and video links (YouTube &amp; Google Drive).</p>
+    <div id="importPreviewList" style="max-height:240px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:rgba(255,255,255,0.5);"></div>
+    <div id="importStatus" style="display:none;padding:10px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;"></div>
+    <div class="macts">
+      <button class="btn-cancel" onclick="closeModal('bulkImportModal')">Cancel</button>
+      <button class="btn-save" id="btnRunImport" onclick="runBulkImport()">Import All Workouts</button>
+    </div>
+  </div>
+</div>
+
 <!-- WORKOUT MODAL -->
 <div class="bkdrop" id="workoutModal">
-  <div class="modal">
+  <div class="modal" style="max-width:560px;">
     <h3 id="wMTitle">Add Workout</h3>
     <input type="hidden" id="editId">
     <div class="fg"><label>Session Type</label><select id="fType"><option value="">Select type</option></select></div>
     <div class="fg"><label>Workout Name</label><input type="text" id="fName" placeholder="e.g. Full Body Power Circuit"></div>
-    <div class="fg"><label>Description / Instructions</label><textarea id="fDesc" placeholder="Sets, reps, coaching notes..."></textarea></div>
+
     <div class="fg">
-      <label>Media (optional)</label>
-      <div class="mtabs"><button class="mt active" onclick="switchMT('image')">Image</button><button class="mt" onclick="switchMT('youtube')">YouTube</button></div>
-      <div class="mp active" id="mpImg">
-        <div class="dz" id="dz" onclick="document.getElementById('fImg').click()" ondragover="dOv(event)" ondragleave="dLv()" ondrop="dDp(event)">
-          <p>Click or drag and drop</p><small>JPG, PNG — max 5MB</small>
-          <input type="file" id="fImg" accept="image/*" onchange="handleImg(event)">
-        </div>
-        <img id="imgPrev" class="iprev" alt="">
+      <label>Format</label>
+      <div class="mtabs">
+        <button class="mt active" id="fmtSimpleBtn" onclick="switchWorkoutFormat('simple')">Single Description &amp; Video</button>
+        <button class="mt" id="fmtExBtn" onclick="switchWorkoutFormat('exercises')">List of Exercises</button>
       </div>
-      <div class="mp" id="mpYt"><input type="text" id="fYt" placeholder="YouTube URL e.g. https://youtu.be/abc123"><small style="color:rgba(255,255,255,0.16);font-size:10px;margin-top:3px;display:block">Paste any YouTube link</small></div>
     </div>
+
+    <!-- SIMPLE FORMAT -->
+    <div id="formatSimple">
+      <div class="fg"><label>Description / Instructions</label><textarea id="fDesc" placeholder="Sets, reps, coaching notes..."></textarea></div>
+      <div class="fg">
+        <label>Media (optional)</label>
+        <div class="mtabs"><button class="mt active" id="mtImgBtn" onclick="switchMT('image')">Image</button><button class="mt" id="mtYtBtn" onclick="switchMT('youtube')">Video Link</button></div>
+        <div class="mp active" id="mpImg">
+          <div class="dz" id="dz" onclick="document.getElementById('fImg').click()" ondragover="dOv(event)" ondragleave="dLv()" ondrop="dDp(event)">
+            <p>Click or drag and drop</p><small>JPG, PNG — max 5MB</small>
+            <input type="file" id="fImg" accept="image/*" onchange="handleImg(event)">
+          </div>
+          <img id="imgPrev" class="iprev" alt="">
+        </div>
+        <div class="mp" id="mpYt"><input type="text" id="fYt" placeholder="YouTube or Google Drive link"><small style="color:rgba(255,255,255,0.16);font-size:10px;margin-top:3px;display:block">Paste a YouTube link, or a Google Drive video link (must be shared as "Anyone with the link")</small></div>
+      </div>
+    </div>
+
+    <!-- EXERCISES LIST FORMAT -->
+    <div id="formatExercises" style="display:none;">
+      <div class="fg">
+        <label>Exercises</label>
+        <small style="color:rgba(255,255,255,0.25);font-size:10px;display:block;margin-bottom:8px;">Add each exercise with its own description and video/image link (YouTube or Google Drive)</small>
+        <div id="exerciseRows"></div>
+        <button type="button" onclick="addExerciseRow()" style="margin-top:6px;padding:6px 12px;background:rgba(78,174,209,0.1);border:1px solid rgba(78,174,209,0.25);border-radius:5px;color:#7dd4f0;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;">+ Add Exercise</button>
+      </div>
+    </div>
+
     <div class="macts"><button class="btn-cancel" onclick="closeModal('workoutModal')">Cancel</button><button class="btn-save" onclick="saveWorkout()">Save Workout</button></div>
   </div>
 </div>
+
+<!-- EXERCISE ROW TEMPLATE STYLES -->
+<style>
+.ex-row{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:10px 12px;margin-bottom:8px;position:relative;}
+.ex-row-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;}
+.ex-row input,.ex-row textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;padding:6px 9px;outline:none;margin-bottom:5px;}
+.ex-row input:focus,.ex-row textarea:focus{border-color:var(--gold);}
+.ex-row-remove{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:rgba(224,92,58,0.15);border:none;color:#ff8c74;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;}
+body.light-mode .ex-row{background:#f5f8fc;border-color:rgba(0,0,0,0.1);}
+body.light-mode .ex-row input,body.light-mode .ex-row textarea{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a2a3a;}
+body.light-mode .ex-row-num{color:#5a7a9a;}
+</style>
 <!-- CREATE ATHLETE MODAL -->
 <div class="bkdrop" id="createAthModal">
   <div class="modal" style="max-width:370px">
@@ -1003,7 +1128,7 @@ body.light-mode .login-hint{color:#6a8aaa;}
     <div id="panelType" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;"></div>
     <div id="panelName" style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;margin-bottom:8px;"></div>
     <div id="panelDesc" style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;"></div>
-    <div id="panelExercises" style="display:none;"></div>
+    <div id="panelExercises" class="panel-exercises-wrap" style="display:none;"></div>
     <a id="panelLink" target="_blank" href="#" style="display:none;font-size:11px;color:#4ea6e8;text-decoration:none;font-family:'DM Mono',monospace;padding:7px 14px;background:rgba(78,174,209,0.1);border:1px solid rgba(78,174,209,0.25);border-radius:5px;display:inline-flex;align-items:center;gap:6px;">▶ Open in YouTube</a>
   </div>
 </div>
@@ -1031,6 +1156,38 @@ function dbOn(p,cb){return window._fbFns.onValue(dbRef(p),s=>cb(s.val()));}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function ytId(u){const m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);return m?m[1]:u.slice(-11);}
+function isDriveLink(u){return /drive\.google\.com/.test(u||'');}
+function isYtLink(u){return /(youtu\.be|youtube\.com)/.test(u||'');}
+function driveFileId(u){
+  // Matches /d/FILEID/ or ?id=FILEID or /file/d/FILEID
+  let m=u.match(/\/d\/([A-Za-z0-9_-]+)/);
+  if(m)return m[1];
+  m=u.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if(m)return m[1];
+  return null;
+}
+function driveEmbedUrl(u){
+  const id=driveFileId(u);
+  if(!id)return null;
+  return 'https://drive.google.com/file/d/'+id+'/preview';
+}
+function driveThumbUrl(u){
+  const id=driveFileId(u);
+  if(!id)return null;
+  return 'https://drive.google.com/thumbnail?id='+id+'&sz=w400';
+}
+function getVideoEmbedUrl(url, autoplay){
+  if(!url)return null;
+  if(isDriveLink(url))return driveEmbedUrl(url);
+  if(isYtLink(url)){const v=ytId(url);return 'https://www.youtube.com/embed/'+v+'?'+(autoplay?'autoplay=1&':'')+'rel=0&modestbranding=1';}
+  return null;
+}
+function getVideoThumbUrl(url){
+  if(!url)return null;
+  if(isDriveLink(url))return driveThumbUrl(url);
+  if(isYtLink(url)){const v=ytId(url);return 'https://img.youtube.com/vi/'+v+'/mqdefault.jpg';}
+  return null;
+}
 function showErr(el,m){el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
 function authErr(c){const m={'auth/invalid-email':'Invalid email.','auth/user-not-found':'No account found.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'Email already in use.','auth/weak-password':'Password must be 6+ characters.','auth/invalid-credential':'Incorrect email or password.','auth/too-many-requests':'Too many attempts. Try later.'};return m[c]||'Error. Please try again.';}
 
@@ -1044,7 +1201,7 @@ async function doLogout(){await window._fbFns.signOut(window._auth);}
 async function doCreateAth(){const n=document.getElementById('caName').value.trim(),e=document.getElementById('caEmail').value.trim(),p=document.getElementById('caPw').value,err=document.getElementById('caErr');if(!n||!e||!p){showErr(err,'Please fill all fields.');return;}if(p.length<6){showErr(err,'Password must be 6+ characters.');return;}try{const res=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+window._auth.app.options.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,returnSecureToken:true})});const d=await res.json();if(d.error){showErr(err,d.error.message);return;}await dbSet('users/'+d.localId,{name:n,email:e,role:'athlete',createdAt:Date.now()});closeModal('createAthModal');['caName','caEmail','caPw'].forEach(id=>document.getElementById(id).value='');alert('Account created for '+n+'. They can sign in with: '+e);loadAthTable();}catch(ex){showErr(err,'Error: '+ex.message);}}
 async function doChangePw(){const p1=document.getElementById('pw1').value,p2=document.getElementById('pw2').value,err=document.getElementById('pwErr');if(p1.length<6){showErr(err,'Minimum 6 characters.');return;}if(p1!==p2){showErr(err,'Passwords do not match.');return;}try{await window._fbFns.updatePassword(window._auth.currentUser,p1);closeModal('pwModal');alert('Password updated.');}catch(ex){showErr(err,authErr(ex.code));}}
 
-function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('navProgress').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('navPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
+function applyRole(){const chip=document.getElementById('uChip');chip.className='user-chip '+(isAdmin?'admin':'athlete');document.getElementById('uChipName').textContent=isAdmin?'Coach':CU.name;if(!isAdmin){document.querySelectorAll('[id^="refl-box-"]').forEach(el=>{const h=el.querySelector('h4');if(h)h.innerHTML=h.innerHTML.replace('Weekly Reflection','Weekly Reflection — '+CU.name);});};document.getElementById('navAth').style.display=isAdmin?'':'none';document.getElementById('navProgress').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('navPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavPlanner').style.display=isAdmin?'none':'';document.getElementById('mobNavAth').style.display=isAdmin?'':'none';document.getElementById('btnAddW').style.display=isAdmin?'flex':'none';document.getElementById('btnBulkImport').style.display=isAdmin?'flex':'none';document.getElementById('roNote').style.display=isAdmin?'none':'block';document.getElementById('btnPw').style.display=isAdmin?'block':'none';document.getElementById('mobBtnPw').style.display=isAdmin?'block':'none';document.getElementById('progBanner').classList.toggle('show',!isAdmin);populateFType();}
 
 function toggleMobMenu(){const d=document.getElementById('mobDrawer');d.classList.toggle('open');}
 document.addEventListener('click',e=>{const d=document.getElementById('mobDrawer');if(d.classList.contains('open')&&!e.target.closest('.mob-drawer')&&!e.target.closest('.menu-btn'))d.classList.remove('open');});
@@ -1054,13 +1211,185 @@ function subLib(){if(unsubLib)unsubLib();unsubLib=dbOn('library',data=>{library=
 async function seedLib(){const defs=[{type:'Land Training - Strength',name:'Full Body Power Circuit',desc:'3 rounds: 10 squats, 10 push-ups, 10 bent-over rows, 30s plank. Rest 90s between rounds.'},{type:'Land Training - Strength',name:'Lower Body Strength',desc:'Back squat 4x6, Romanian deadlift 3x8, walking lunges 3x12 each leg, calf raises 4x15.'},{type:'Land Training - Flex & Extension',name:'Active Splits & Oversplits',desc:'Dynamic warm-up, PNF hamstring 3x30s each, oversplit with elevated foot 2x45s, hip flexor lunges.'},{type:'Choreography',name:'Routine Run-Through',desc:'Full routine from top. Film all runs. Focus on musical phrasing and entry timing. Minimum 3 clean runs.'},{type:'Synchro Drills',name:'Eggbeater Strength Drills',desc:'10x20s maximum height with 20s rest. Partner height comparison. 2min sustained height hold.'},{type:'Speed Swimming',name:'Sprint Intervals 10x25m',desc:'Warm up 400m easy. 10x25m on 1:00 max velocity. Cool-down 200m. Record split times.'},{type:'Injury Prevention',name:'Rotator Cuff & Shoulder Prehab',desc:'Theraband external rotation 3x15, prone T/Y/W 3x12, wall slides 2x15, sleeper stretch 3x30s each side.'},{type:'Injury Prevention',name:'Full Body Recovery Stretches',desc:'30-min guided stretching: hip flexors, hamstrings, thoracic spine, shoulder girdle, calves. 45-60s each.'}];const u={};defs.forEach(d=>{const id=uid();u[id]={id,...d,imageDataUrl:null,ytUrl:null};});await dbUpd('library',u);}
 function buildSB(){const el=document.getElementById('sbEl'),arr=Object.values(library);let h=`<button class="sdb${!curLT?' active':''}" style="--acc:var(--gold)" onclick="filterLib(null)"><div class="sdot" style="background:var(--gold)"></div>All Workouts<span class="scnt">${arr.length}</span></button>`;ATYPES.forEach(t=>{const c=TC[t],n=arr.filter(w=>w.type===t).length;h+=`<button class="sdb${curLT===t?' active':''}" style="--acc:${c.color}" onclick="filterLib('${t.replace(/'/g,"\\'")}')"><div class="sdot" style="background:${c.color}"></div>${t.replace('Land Training - ','')}<span class="scnt">${n}</span></button>`;});el.innerHTML=h;}
 function filterLib(t){curLT=t;buildSB();renderCards();document.getElementById('libTitle').textContent=t||'All Workouts';}
-function renderCards(){const g=document.getElementById('cgrid'),arr=Object.values(library).filter(w=>!curLT||w.type===curLT);if(!arr.length){g.innerHTML='<div class="empty-st"><p>No workouts yet</p><small>'+(isAdmin?'Click Add Workout to get started':'Your coach has not added workouts yet')+'</small></div>';return;}g.innerHTML=arr.map(w=>{const c=TC[w.type]||{};let med='';if(w.ytUrl){const v=ytId(w.ytUrl);med=`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)"><img src="https://img.youtube.com/vi/${v}/mqdefault.jpg" alt=""><div class="yt-ov"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div></div></div>`;}else if(w.imageDataUrl)med=`<img class="wcard-thumb" src="${w.imageDataUrl}" alt="">`;else med='<div class="wcard-none">NO MEDIA</div>';const aa=isAdmin?`<button class="ibtn" onclick="editW('${w.id}')" title="Edit">&#9998;</button><button class="ibtn del" onclick="delW('${w.id}')" title="Delete">&#128465;</button>`:'';return `<div class="wcard">${med}<div class="wcard-body"><div class="wcard-name">${esc(w.name)}</div>${w.desc?`<div class="wcard-desc">${esc(w.desc)}</div>`:''}<div class="wcard-meta"><div style="width:6px;height:6px;border-radius:50%;background:${c.color};flex-shrink:0"></div><span style="font-size:10px;color:rgba(255,255,255,0.24);font-family:'DM Mono',monospace">${w.type.replace('Land Training - ','')}</span><div class="wcard-acts">${w.ytUrl?`<a class="wcard-link" href="${esc(w.ytUrl)}" target="_blank">Watch</a>`:''}${aa}</div></div></div></div>`;}).join('');}
+function renderCards(){
+  const g=document.getElementById('cgrid'),arr=Object.values(library).filter(w=>!curLT||w.type===curLT);
+  if(!arr.length){g.innerHTML='<div class="empty-st"><p>No workouts yet</p><small>'+(isAdmin?'Click Add Workout to get started':'Your coach has not added workouts yet')+'</small></div>';return;}
+  g.innerHTML=arr.map(w=>{
+    const c=TC[w.type]||{};
+    const hasExercises = w.exercises && w.exercises.length;
+    let med='';
+    if(hasExercises){
+      // Use first exercise with a link for thumbnail, else show exercise count badge
+      const firstWithLink = w.exercises.find(e=>e.link);
+      const thumb = firstWithLink ? getVideoThumbUrl(firstWithLink.link) : null;
+      if(thumb){
+        med=`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)"><img src="${thumb}" alt="" onerror="this.style.display='none'"><div class="yt-ov"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div></div><div class="ex-count-badge">${w.exercises.length} exercises</div></div>`;
+      } else {
+        med=`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)" style="display:flex;align-items:center;justify-content:center;"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div><div class="ex-count-badge">${w.exercises.length} exercises</div></div>`;
+      }
+    } else if(w.ytUrl){
+      const thumb=getVideoThumbUrl(w.ytUrl);
+      med=thumb?`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)"><img src="${thumb}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;wcard-no-media&quot; style=&quot;display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer;&quot; onclick=&quot;openYtPop(&apos;${w.id}&apos;,event)&quot;>&#9654; Play Video</div>'"><div class="yt-ov"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div></div></div>`:`<div class="wcard-yt" onclick="openYtPop('${w.id}',event)" style="display:flex;align-items:center;justify-content:center;"><div class="yt-play"><svg width="11" height="11" viewBox="0 0 14 14" fill="white"><path d="M3 2l9 5-9 5V2z"/></svg></div></div>`;
+    } else if(w.imageDataUrl){
+      med=`<img class="wcard-thumb" src="${w.imageDataUrl}" alt="">`;
+    } else {
+      med='<div class="wcard-none">NO MEDIA</div>';
+    }
+    const aa=isAdmin?`<button class="ibtn" onclick="editW('${w.id}')" title="Edit">&#9998;</button><button class="ibtn del" onclick="delW('${w.id}')" title="Delete">&#128465;</button>`:'';
+    const descHtml = hasExercises
+      ? `<div class="wcard-desc">${w.exercises.length} exercises &middot; ${esc(w.exercises.slice(0,2).map(e=>e.name).join(', '))}${w.exercises.length>2?'...':''}</div>`
+      : (w.desc?`<div class="wcard-desc">${esc(w.desc)}</div>`:'');
+    return `<div class="wcard">${med}<div class="wcard-body"><div class="wcard-name">${esc(w.name)}</div>${descHtml}<div class="wcard-meta"><div style="width:6px;height:6px;border-radius:50%;background:${c.color};flex-shrink:0"></div><span class="wcard-type-label" style="font-size:10px;font-family:'DM Mono',monospace">${w.type.replace('Land Training - ','')}</span><div class="wcard-acts">${(!hasExercises&&w.ytUrl)?`<a class="wcard-link" href="${esc(w.ytUrl)}" target="_blank">Watch</a>`:''}${aa}</div></div></div></div>`;
+  }).join('');
+}
 
 // WORKOUT CRUD
+
+// EXERCISE LIST MANAGEMENT
+let curWorkoutFormat = 'simple';
+let exerciseRowCount = 0;
+
+function switchWorkoutFormat(fmt){
+  curWorkoutFormat = fmt;
+  document.getElementById('fmtSimpleBtn').classList.toggle('active', fmt==='simple');
+  document.getElementById('fmtExBtn').classList.toggle('active', fmt==='exercises');
+  document.getElementById('formatSimple').style.display = fmt==='simple'?'block':'none';
+  document.getElementById('formatExercises').style.display = fmt==='exercises'?'block':'none';
+  if(fmt==='exercises' && exerciseRowCount===0) addExerciseRow();
+}
+
+function addExerciseRow(data){
+  exerciseRowCount++;
+  const id = 'ex_'+exerciseRowCount+'_'+Date.now();
+  const wrap = document.getElementById('exerciseRows');
+  const row = document.createElement('div');
+  row.className = 'ex-row';
+  row.id = id;
+  row.innerHTML = `
+    <button type="button" class="ex-row-remove" onclick="document.getElementById('${id}').remove()">&#x2715;</button>
+    <div class="ex-row-num">Exercise</div>
+    <input type="text" class="ex-name" placeholder="Exercise name e.g. 10 Lunges" value="${data&&data.name?esc(data.name):''}">
+    <textarea class="ex-desc" rows="2" placeholder="Description / instructions">${data&&data.desc?esc(data.desc):''}</textarea>
+    <input type="text" class="ex-link" placeholder="YouTube or Google Drive link (optional)" value="${data&&data.link?esc(data.link):''}">
+  `;
+  wrap.appendChild(row);
+}
+
+function getExerciseRows(){
+  return Array.from(document.querySelectorAll('#exerciseRows .ex-row')).map(row=>({
+    name: row.querySelector('.ex-name').value.trim(),
+    desc: row.querySelector('.ex-desc').value.trim(),
+    link: row.querySelector('.ex-link').value.trim(),
+  })).filter(e=>e.name);
+}
+
+function clearExerciseRows(){
+  document.getElementById('exerciseRows').innerHTML='';
+  exerciseRowCount=0;
+}
+
+
+// BULK IMPORT FROM SPREADSHEET
+const IMPORT_DATA = [{"name": "Full Body Stretch - Advanced", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Full Body Stretch", "desc": "Follow along video", "link": "https://youtu.be/BD-aJAXffiw?is=ONEKsAKastc-_ntZ"}]}, {"name": "Hips & Middle Splits Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Hips & Middle Splits Stretch", "desc": "Follow along video", "link": "https://youtu.be/jpJeMaOb2iM?is=ZDM6inP6Ms_mdxie"}]}, {"name": "Leg Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Leg Stretch", "desc": "Follow along video", "link": "https://youtu.be/yoWLPgwe9oc?is=jkHfds6lGX0dK_Pq"}]}, {"name": "Full Body Stretch - Intermediate", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Full Body Stretch", "desc": "Follow along video", "link": "https://youtu.be/txapo6BlpsA?is=wJ8QeE7i4Y8_oHUh"}]}, {"name": "Hamstring Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Hamstring Stretch", "desc": "Follow along video", "link": "https://youtu.be/BXSpFyFqx3Y?is=MeVASP9bnxCdCWXH"}]}, {"name": "Dynamic Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Dynamic Stretch", "desc": "Follow along video", "link": "https://youtu.be/o68QhmpRgzU?is=lZbgpZZJvT0xxsYX"}]}, {"name": "Feet & Ankle Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Feet & Ankle Stretch", "desc": "Follow along video", "link": "https://youtu.be/Q4kM01Iz8o4?is=NqWVA0uYQGYY0qOF"}]}, {"name": "Back & Shoulder Stretch", "type": "Land Training - Flex & Extension", "exercises": [{"name": "Back & Shoulder Stretch", "desc": "Follow along video", "link": "https://youtu.be/LgWYsOZKCms?is=sxyBichPNp9SgxW9"}]}, {"name": "Strength Core", "type": "Land Training - Strength", "exercises": [{"name": "2 core routine", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1M073VV0HUp_qFvO2NtqcOxD3Ri6U-1fL/view?usp=share_link"}, {"name": "2 minute plank hold", "desc": "On hands or elbows, engage core, head in line", "link": "https://drive.google.com/file/d/1BrhCsAJ65CrZRtafapolLpx7vuKPBRIQ/view?usp=sharing"}, {"name": "30 sit ups", "desc": "Legs bent, arms behind head or hands on shoulders", "link": ""}, {"name": "15 V sits", "desc": "Knees straight, hands touch toes, nose close to shins", "link": "https://drive.google.com/file/d/17OjiwH8b6kaGopB4oXNq3HMkzG6Npe8j/view?usp=sharing"}, {"name": "10 single leg glute brige on each leg", "desc": "Pulse up and down with one leg in the air", "link": "https://drive.google.com/file/d/1T2qyMvzTbUqmPKaiOsA6HBHxRJr8bWhF/view?usp=sharing"}, {"name": "20 straight leg windsreen wipers", "desc": "Lay on back, straight legs up to ceiling, drop both legs to one side, lift over and drop legs to other side, repeat", "link": "https://drive.google.com/file/d/1FJPOABMiF3_ki3tZZsswEY51gWNXoBn3/view?usp=sharing"}, {"name": "2 ballet leg on blocks sequence", "desc": "Lay on blocks under shoulders and ankles, bent knee ballet leg on each leg, straight ballet leg on each leg, repeat", "link": "https://drive.google.com/file/d/1Qh9RWHsVeTxsVpoiBUcjzNzGFi7YCmJH/view?usp=sharing"}, {"name": "5 plank leg lifts 5 plank leg bends", "desc": "Follow along video, engage core", "link": "https://drive.google.com/file/d/1tk3CNZfWsgBGbg6pXm6S6FLDoRkDmzO2/view?usp=share_link"}, {"name": "10 side fishtail single leg lifts and 10 second hold", "desc": "Follow along video, 10 lifts and then 10 second hold on each leg, optional ankle weights", "link": "https://drive.google.com/file/d/18qn58q39ISnmeO4xwoTJ-3xPLeD0YBdS/view?usp=share_link"}, {"name": "15 tuck to back layout", "desc": "Follow along video, optional ankle weights", "link": "https://drive.google.com/file/d/1eEaVADhfOjSPwqdL9U-F1sQNJt19T4ky/view?usp=share_link"}, {"name": "20 lying pike leg steps", "desc": "20 steps in total, follow video, optional ankle weights", "link": "https://drive.google.com/file/d/1NztKXQYLzQs8XJXNxDjD8rQ0aDL0c6Jg/view?usp=share_link"}, {"name": "30 plank hands to shoulders", "desc": "Follow along video, 30 shoulder touches total", "link": "https://drive.google.com/file/d/1tk3CNZfWsgBGbg6pXm6S6FLDoRkDmzO2/view?usp=share_link"}, {"name": "5 seal stretch to downward dog", "desc": "Move from a seal stretch to downward dog five times slowly", "link": "https://drive.google.com/file/d/1u8hbT4eJCmf7u5KAn2H0jXpYoRFJhCvM/view?usp=share_link"}]}, {"name": "Strength Arms", "type": "Land Training - Strength", "exercises": [{"name": "15 narrow push ups", "desc": "Elbows under body, engage core", "link": "https://drive.google.com/file/d/1DrwUuGdzqfiG5wasWoC4-Yzlq07tG1L3/view?usp=share_link"}, {"name": "15 support scull wrist lift & lower", "desc": "Use 1kg or less weights, if you do not have weights use full water bottles, follow along video", "link": "https://drive.google.com/file/d/1xjXE6zLLSmPVQH7vUdasNolFXFb6aorh/view?usp=sharing"}, {"name": "15 arm circles forwards", "desc": "", "link": ""}, {"name": "15 arm circles backwards", "desc": "", "link": ""}, {"name": "2 weighted arm lifts sequence", "desc": "Follow along video, optional wrist weights", "link": "https://drive.google.com/file/d/1bkvBpW7BoKwKARZnHoz49s6Zt-7bR2Wt/view?usp=sharing"}, {"name": "30 plank elbows to hands", "desc": "Follow along video, engage core", "link": "https://drive.google.com/file/d/13P5aOFEUK9Qbp-TU1KWpud2P5VbgvQ4G/view?usp=share_link"}, {"name": "1 minute support scull with thera band under feet", "desc": "Stand straight, engage core", "link": "https://drive.google.com/file/d/1fjGDSo7pY6fx3b_yHPCDX3UnbvBCMaTz/view?usp=sharing"}, {"name": "30 arm extension with threa band behind head", "desc": "Follow along video, 15 with one arm on top, switch arms, 15 with other arm on top", "link": "https://drive.google.com/file/d/1ijMOWYmL40NfRG_SkJAfZTduleaKxX4F/view?usp=sharing"}, {"name": "20 seated pike thera band arm pulls", "desc": "Follow along video, 30 total pulls", "link": "https://drive.google.com/file/d/1Y1-vlghBkbpWJttgaIjibK7vp3FprJxU/view?usp=share_link"}, {"name": "10 single leg open close push ups", "desc": "Follow along video, 10 push ups on each leg", "link": "https://drive.google.com/file/d/1y1PU9d-_gq2EPQG-WMMFZ8vGACw6hAFI/view?usp=share_link"}, {"name": "30 standing thera band bend and extend", "desc": "Follow along video, 30 total", "link": "https://drive.google.com/file/d/17yf5zcLBHplmzRoTwmodrfmAOkP15ig5/view?usp=sharing"}, {"name": "10 thera band shoulder stretch", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1IwDHIi-nKam_jdopBMERy1kVujbh3h1u/view?usp=sharing"}, {"name": "30 weighted arm extensions", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1NztKXQYLzQs8XJXNxDjD8rQ0aDL0c6Jg/view?usp=sharing"}, {"name": "15 thera band between hands pulls", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1ewBrzvrhnfgLV1dbYgPnaH4Ov1Pnvngz/view?usp=sharing"}, {"name": "30 seconds across body shoulder stretch", "desc": "30 seconds on each arm", "link": "https://drive.google.com/file/d/1XaXTp9hLqJUpZSQ71U75dcbGGEkCIgWw/view?usp=sharing"}, {"name": "30 seconds wrist stretch", "desc": "Follow image", "link": "https://drive.google.com/file/d/10hYL51K0VaHBSBQ4-gGaC7MZBMI-8qdn/view?usp=sharing"}, {"name": "30 seconds behind head shoulder stretch", "desc": "30 seconds on each arm", "link": "https://drive.google.com/file/d/1aXHcvnsdDUmbqUJPpIsUuM8Pv-ByAdRz/view?usp=sharing"}, {"name": "30 seconds seated shoulder stretch", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1REKVgsULlOo-_3cgNDAYc_Dbk-ja6Njd/view?usp=share_link"}]}, {"name": "Strength Legs", "type": "Land Training - Strength", "exercises": [{"name": "30 squat jumps", "desc": "90 degrees, arms up in jump", "link": ""}, {"name": "2 minute wall sit", "desc": "Head against the wall, 90 degrees, hands on shoulders", "link": "https://drive.google.com/file/d/1gzQ50T4QP0fcZv9ON5jKiDCY48J9lVh3/view?usp=sharing"}, {"name": "10 lunges on each leg", "desc": "One leg in front of the other, bend both back and front knee to 90 degrees, straighten legs and repeat", "link": ""}, {"name": "Leg lift sequence", "desc": "Follow along video, x10 single leg lift, x10 ten double leg lift, x10 pike leg lift", "link": "https://drive.google.com/file/d/1mvI_ImC0iTdtMksjmUW2_tiCI3FIi5-o/view?usp=sharing"}, {"name": "10 lunge to half split to side lunge", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1r80d48bkf1Hy-qJmZkGYLOZUJT5jQ7RY/view?usp=sharing"}, {"name": "15 heel raises on each leg", "desc": "Bent knees, hold wall for balance if needed", "link": "https://drive.google.com/file/d/1co4ime4l4lmLuCo399n2Fx_mrMwWfcD6/view?usp=sharing"}, {"name": "10 standing single leg fold", "desc": "Follow along video, 10 on each leg, optional weight", "link": "https://drive.google.com/file/d/1KnjuIYtNB7ZHXhh5HtZiuKzWz-0ycegp/view?usp=sharing"}, {"name": "10 elevated hamstring fold", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1h1kmJXSWekIamoIpLWtMnpvQqosYLusN/view?usp=sharing"}, {"name": "10 seated leg lift, point flex, repeat", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1sIC2zFpFJXDy_BcHDzv9xuJ-3-6IJwAM/view?usp=sharing"}, {"name": "10 foam roller back leg lunge", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1hZiRriLDmtj4O0dGtCheR43rZyS86C2i/view?usp=sharing"}, {"name": "10 lunge to half split against wall", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1vm3nyn0FSgvPzHfwAY-Bb14QXM2VSHCf/view?usp=sharing"}, {"name": "10 single leg lift, fold forward", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1mEWYTfSdB3e_9vDWMA6bHP4Mpyfbol0k/view?usp=sharing"}, {"name": "10 lunge with back knee on blocks", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1uo2Mohvm-o-dZn-KliR388GOLeBfPl1D/view?usp=sharing"}, {"name": "10 thera band wide leg lunge", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1S5_Vv5yXXkYvAtGn3cnrEsFMmaLXbgPZ/view?usp=sharing"}, {"name": "10 thera band split slides", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1ixI2VfSlk4KBPn7UHMnTW963XP8LYS6d/view?usp=sharing"}, {"name": "10 elevanted lunge and leg lift", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1ijMOWYmL40NfRG_SkJAfZTduleaKxX4F/view?usp=sharing"}, {"name": "10 kick to shoulder stand", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1H_wiHFHpC1j7mh7uMfyW4kcovjHs61YI/view?usp=sharing"}, {"name": "10 split slides", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1BZI4JqI2IJPUWD3cjGzHzWetwnKMz2_h/view?usp=sharing"}, {"name": "10 single leg, sit to stand", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1mUMXgS82vFvOzDfpdnYXwjiz17OgP9vB/view?usp=sharing"}, {"name": "10 pigeon stretch bend & extend", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1WCTePY4_fiL2H8EIlZOnkxWT13MAWjcF/view?usp=sharing"}]}, {"name": "Strength Cardio", "type": "Land Training - Strength", "exercises": [{"name": "40 jumping jacks", "desc": "On the spot, use arms and legs", "link": ""}, {"name": "60 butt kicks", "desc": "On the spot, alternate legs kicking butt", "link": ""}, {"name": "15 burpees", "desc": "On the spot, high jumps, stomach on floor in press up", "link": ""}, {"name": "60 high knees", "desc": "On the spot, knees as high as possible", "link": ""}, {"name": "15 V sits", "desc": "Knees straight, hands touch toes, nose close to shins", "link": "https://drive.google.com/file/d/17OjiwH8b6kaGopB4oXNq3HMkzG6Npe8j/view?usp=sharing"}, {"name": "2 core routine", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1M073VV0HUp_qFvO2NtqcOxD3Ri6U-1fL/view?usp=share_link"}, {"name": "20 narrow push ups", "desc": "Elbows under body, engage core", "link": "https://drive.google.com/file/d/1DrwUuGdzqfiG5wasWoC4-Yzlq07tG1L3/view?usp=share_link"}, {"name": "1 minute support scull with thera band under feet", "desc": "Stand straight, engage core", "link": "https://drive.google.com/file/d/1fjGDSo7pY6fx3b_yHPCDX3UnbvBCMaTz/view?usp=sharing"}, {"name": "30 squat jumps", "desc": "90 degrees, arms up in jump", "link": ""}, {"name": "2 minute plank hold", "desc": "On hands or elbows, engage core, head in line", "link": "https://drive.google.com/file/d/1BrhCsAJ65CrZRtafapolLpx7vuKPBRIQ/view?usp=sharing"}]}, {"name": "Back Flexibility", "type": "Land Training - Flex & Extension", "exercises": [{"name": "1 minute child's pose", "desc": "", "link": ""}, {"name": "10 cat cow circles", "desc": "x5 slow full circles one direction and x5 slow full circle in the other direction", "link": "https://drive.google.com/file/d/1SI6TfUyMOD0cZBNNsmS3XCRl9RZi9fjm/view?usp=sharing"}, {"name": "10 seal stretch press up", "desc": "Slowly move from front layout, extend arms up to seal stretch", "link": ""}, {"name": "30 seconds lying shoulder stretch", "desc": "Sit on the floor, extend arms out behind you, hold shoulder stretch", "link": "https://drive.google.com/file/d/1HiFJryJWdJxqeJqBvvAf8-3Ttd2dhsJl/view?usp=sharing"}, {"name": "10 seal stretch to downward dog", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1u8hbT4eJCmf7u5KAn2H0jXpYoRFJhCvM/view?usp=share_link"}, {"name": "30 seconds lying lower back stretch", "desc": "Follow along video, 30 seconds on each side", "link": "https://drive.google.com/file/d/17WbjRFYpJyq3tkMGihwz9hckycEU4k-5/view?usp=sharing"}, {"name": "1 minute puppy pose", "desc": "", "link": ""}, {"name": "10 bridge rocks", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1XczK7NXJzynw7MMcJYysAUmOQKX025sK/view?usp=sharing"}, {"name": "5 surface arch with thera band", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1QFtGUuh7UG9whUX2xnnrZKucK7WK_Dka/view?usp=sharing"}, {"name": "2 kneeling back arch body wave sequence", "desc": "Follow along video, repeat", "link": "https://drive.google.com/file/d/1LJSsOjewAioAgCEJSuNiYtE-EQhsYuBe/view?usp=sharing"}, {"name": "30 standing knight holds with 5 back arches", "desc": "Follow along video, repeat on each leg", "link": "https://drive.google.com/file/d/1af6nw0iNkgseRrladeowkrGA8PTUKCtA/view?usp=sharing"}, {"name": "1 minute back stretch foam roller", "desc": "Follow image", "link": "https://drive.google.com/file/d/1uUO2z0W5VyguYryOanSXbDNiCL0Ww-Il/view?usp=sharing"}]}, {"name": "Injury prevention", "type": "Injury Prevention", "exercises": [{"name": "1 minute quads foam roller", "desc": "Follow image", "link": "https://drive.google.com/file/d/1_bYLPvOTff-jaTIrEmYVyKXwJkhD7qqB/view?usp=sharing"}, {"name": "15 large arm circles backwards", "desc": "", "link": ""}, {"name": "15 large arm circles forwards", "desc": "", "link": ""}, {"name": "1 minute hamstring & calfs foam roller", "desc": "Follow image", "link": "https://drive.google.com/file/d/1WpZCMbBBi5mATG0oU2JsBDJ4vWEJyCyj/view?usp=sharing"}, {"name": "10 hip IP exercise", "desc": "Follow image, 10 on each leg", "link": "https://drive.google.com/file/d/18O3qJj1FtWZfyxE-gbeEWD2yoMsdceG0/view?usp=sharing"}, {"name": "10 shoulder IP exercise", "desc": "Follow image, 10 on each arm", "link": "https://drive.google.com/file/d/1f8ZqoHvkgS0p8WNuAX9h8uJEWuDjiPGt/view?usp=sharing"}, {"name": "10 alternating Isle of Man", "desc": "Follow image", "link": "https://drive.google.com/file/d/1JAcbCQUOfsChfqJmhqDSuI5a0S04COOz/view?usp=sharing"}, {"name": "10 hip mobility over block", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1GWC1_7deJnuh9FtBjDNffWupMi4gWDgA/view?usp=sharing"}, {"name": "1 minute IT foam roller", "desc": "Follow image", "link": "https://drive.google.com/file/d/1o4KTkaqmObHoykP0b7QUPzQ11I9gNkoJ/view?usp=sharing"}, {"name": "30 seconds lying lower back stretch", "desc": "Follow along video, 30 seconds on each side", "link": "https://drive.google.com/file/d/17WbjRFYpJyq3tkMGihwz9hckycEU4k-5/view?usp=sharing"}, {"name": "10 cat cow circles", "desc": "Follow along video, 5 one direction, 5 other direction", "link": "https://drive.google.com/file/d/1SI6TfUyMOD0cZBNNsmS3XCRl9RZi9fjm/view?usp=sharing"}]}, {"name": "Strength Sculling", "type": "Land Training - Strength", "exercises": [{"name": "15 support scull wrist lift & lower", "desc": "Use 1kg or less weights, if you do not have weights use full water bottles, follow along video", "link": "https://drive.google.com/file/d/1xjXE6zLLSmPVQH7vUdasNolFXFb6aorh/view?usp=sharing"}, {"name": "2 weighted arm lifts sequence", "desc": "Follow along video, optional wrist weights", "link": "https://drive.google.com/file/d/1bkvBpW7BoKwKARZnHoz49s6Zt-7bR2Wt/view?usp=sharing"}, {"name": "1 minute support scull with thera band under feet", "desc": "Stand straight, engage core", "link": "https://drive.google.com/file/d/1fjGDSo7pY6fx3b_yHPCDX3UnbvBCMaTz/view?usp=sharing"}, {"name": "30 arm extension with threa band behind head", "desc": "Follow along video, 15 with one arm on top, switch arms, 15 with other arm on top", "link": "https://drive.google.com/file/d/1ijMOWYmL40NfRG_SkJAfZTduleaKxX4F/view?usp=sharing"}, {"name": "20 seated pike thera band arm pulls", "desc": "Follow along video, 30 total pulls", "link": "https://drive.google.com/file/d/1Y1-vlghBkbpWJttgaIjibK7vp3FprJxU/view?usp=share_link"}, {"name": "30 standing thera band bend and extend", "desc": "Follow along video, 30 total", "link": "https://drive.google.com/file/d/17yf5zcLBHplmzRoTwmodrfmAOkP15ig5/view?usp=sharing"}, {"name": "30 weighted arm extensions", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1NztKXQYLzQs8XJXNxDjD8rQ0aDL0c6Jg/view?usp=sharing"}, {"name": "15 thera band between hands pulls", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1ewBrzvrhnfgLV1dbYgPnaH4Ov1Pnvngz/view?usp=sharing"}, {"name": "15 thera band support scull to totem scull", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1KnjuIYtNB7ZHXhh5HtZiuKzWz-0ycegp/view?usp=sharing"}, {"name": "15 thera band open support scul", "desc": "Follow along video, 15 with one arm, switch arms, 15 with other arm", "link": "https://drive.google.com/file/d/1ByT9qRLfyBFkBI8u8Z2otaWEI0RXXLYn/view?usp=sharing"}, {"name": "10 thera band support scull, push over head", "desc": "Follow along video, 3 support scull, 1 push overhead x10", "link": "https://drive.google.com/file/d/1mK03tW1O_d3gP2jG1DE526mjp5JaqCYk/view?usp=sharing"}, {"name": "15 standing pike thera band pulls", "desc": "Follow along video, 15 pulls", "link": "https://drive.google.com/file/d/1vPyKpbpIBSRTlsJRJYMQJvMAYVsSu6Zm/view?usp=sharing"}, {"name": "30 thera band support scull in split", "desc": "Follow along video, 30 sculls", "link": "https://drive.google.com/file/d/13UlDCHH75VxvPvxvQG8bLtglVAOLTP6G/view?usp=sharing"}, {"name": "30 seconds across body shoulder stretch", "desc": "30 seconds on each arm", "link": "https://drive.google.com/file/d/1XaXTp9hLqJUpZSQ71U75dcbGGEkCIgWw/view?usp=sharing"}, {"name": "30 seconds wrist stretch", "desc": "Follow image", "link": "https://drive.google.com/file/d/10hYL51K0VaHBSBQ4-gGaC7MZBMI-8qdn/view?usp=sharing"}, {"name": "30 seconds behind head shoulder stretch", "desc": "30 seconds on each arm", "link": "https://drive.google.com/file/d/1aXHcvnsdDUmbqUJPpIsUuM8Pv-ByAdRz/view?usp=sharing"}, {"name": "30 seconds seated shoulder stretch", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1REKVgsULlOo-_3cgNDAYc_Dbk-ja6Njd/view?usp=share_link"}]}, {"name": "Knee & Feet Extension", "type": "Land Training - Flex & Extension", "exercises": [{"name": "30 ankle extensions", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1JAcbCQUOfsChfqJmhqDSuI5a0S04COOz/view?usp=sharing"}, {"name": "10 thera band bent knee ballet legs", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1E8AHi3zcWG3UAEO5u9WDx-rpia2I6TyK/view?usp=sharing"}, {"name": "30 bend & extend pike fold", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1aXHcvnsdDUmbqUJPpIsUuM8Pv-ByAdRz/view?usp=sharing"}, {"name": "30 block against wall knee extension", "desc": "Follow along video, 30 on each leg", "link": "https://drive.google.com/file/d/1HwMfcS3dRt9l8FrjlaD1jAG5vOA3cf7x/view?usp=sharing"}, {"name": "30 full foot thera band extensions", "desc": "Follow along video, 30 on each foot", "link": "https://drive.google.com/file/d/1hZiRriLDmtj4O0dGtCheR43rZyS86C2i/view?usp=sharing"}, {"name": "10 hamstring pike folds", "desc": "Follow along, 10 folds", "link": "https://drive.google.com/file/d/1SgzXOBsiZb4tCds2Qta42uGzBK0-r_92/view?usp=sharing"}, {"name": "30 thera band toe extensions", "desc": "Follow along video, 30 on each foot", "link": "https://drive.google.com/file/d/1VVhFzwTxkQXVtsKTNxHksVfvdKXYz7Ow/view?usp=sharing"}, {"name": "10 handstand thera band split extensions", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1xOFFpDe6OlR9F7sECzXlJjIJziR_zRhn/view?usp=sharing"}, {"name": "30 heel raises on block", "desc": "Follow along video, 30 raises", "link": "https://drive.google.com/file/d/1tRIopK4kVQsqFuTC6GRU_z3_o6Ruf0O9/view?usp=sharing"}, {"name": "10 thera band glute bridge", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1QFtGUuh7UG9whUX2xnnrZKucK7WK_Dka/view?usp=sharing"}, {"name": "10 splits knee extension", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/18O3qJj1FtWZfyxE-gbeEWD2yoMsdceG0/view?usp=sharing"}, {"name": "10 kneeling thera band feet extensions", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1LJSsOjewAioAgCEJSuNiYtE-EQhsYuBe/view?usp=sharing"}, {"name": "30 lying pike thera band feet knee extensions", "desc": "Follow along video, 30 total", "link": "https://drive.google.com/file/d/11b5l8KcAHLJRQuCVCeNe1jJvG1LEH8hD/view?usp=sharing"}, {"name": "10 lying block knee extensions", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1xywTV4zsUbkijmZN2EZdif_1B5-4qS93/view?usp=sharing"}, {"name": "30 front lying thera band extensions", "desc": "Follow along video, 30 total", "link": "https://drive.google.com/file/d/1uY3jsNBVKx45EexrSZHZXiiBzlLd1yhZ/view?usp=sharing"}, {"name": "10 lying split thera band extensions", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1HiFJryJWdJxqeJqBvvAf8-3Ttd2dhsJl/view?usp=sharing"}, {"name": "10 pike folds on blocks", "desc": "Follow along, 10 folds", "link": "https://drive.google.com/file/d/1MwqG33WXuZbDoLkDrYOUn3kulVU1y7Lj/view?usp=sharing"}, {"name": "10 seated knee & ankle extensions", "desc": "Follow along, 10 total, ankle weights optional", "link": "https://drive.google.com/file/d/13P5aOFEUK9Qbp-TU1KWpud2P5VbgvQ4G/view?usp=sharing"}, {"name": "10 vertical split extensions", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1YjUPcTXz8yWxLAKV8OdbR-Eh1BZuGcdg/view?usp=sharing"}, {"name": "30 toe curls on blocks", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1S5_Vv5yXXkYvAtGn3cnrEsFMmaLXbgPZ/view?usp=sharing"}]}, {"name": "Hip & Box Split Strength", "type": "Land Training - Strength", "exercises": [{"name": "2 minute wall sit", "desc": "Head against the wall, 90 degrees, hands on shoulders", "link": "https://drive.google.com/file/d/1gzQ50T4QP0fcZv9ON5jKiDCY48J9lVh3/view?usp=sharing"}, {"name": "20 straight leg windsreen wipers", "desc": "Lay on back, straight legs up to ceiling, drop both legs to one side, lift over and drop legs to other side, repeat", "link": "https://drive.google.com/file/d/1FJPOABMiF3_ki3tZZsswEY51gWNXoBn3/view?usp=sharing"}, {"name": "Elevated hip rotation", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1dEhED69wTycBkDBVQ3dR99ByToZFSOF7/view?usp=sharing"}, {"name": "Leg lift sequence", "desc": "Follow along video, x10 single leg lift, x10 ten double leg lift, x10 pike leg lift", "link": "https://drive.google.com/file/d/1mvI_ImC0iTdtMksjmUW2_tiCI3FIi5-o/view?usp=sharing"}, {"name": "10 lunge to half split to side lunge", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1r80d48bkf1Hy-qJmZkGYLOZUJT5jQ7RY/view?usp=sharing"}, {"name": "10 single leg glute brige on each leg", "desc": "Pulse up and down with one leg in the air", "link": "https://drive.google.com/file/d/1T2qyMvzTbUqmPKaiOsA6HBHxRJr8bWhF/view?usp=sharing"}, {"name": "10 hip mobility over block", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1GWC1_7deJnuh9FtBjDNffWupMi4gWDgA/view?usp=sharing"}, {"name": "10 hip IP exercise", "desc": "Follow image, 10 on each leg", "link": "https://drive.google.com/file/d/18O3qJj1FtWZfyxE-gbeEWD2yoMsdceG0/view?usp=sharing"}, {"name": "10 open & closed clam", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1r80d48bkf1Hy-qJmZkGYLOZUJT5jQ7RY/view?usp=sharing"}, {"name": "10 single leg open close push ups", "desc": "Follow along video, 10 push ups on each leg", "link": "https://drive.google.com/file/d/1y1PU9d-_gq2EPQG-WMMFZ8vGACw6hAFI/view?usp=share_link"}, {"name": "10 side lunge & tilt", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1jElWsWfDZHKuwxwfvVCL7RMNLbzGyDBO/view?usp=sharing"}, {"name": "30 seconds outer hip stretch", "desc": "Follow image", "link": "https://drive.google.com/file/d/1gJhlaMUPnekbx594cQCg3vkHiceDVf9A/view?usp=sharing"}, {"name": "10 seated to standing hip stretch", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1WCTePY4_fiL2H8EIlZOnkxWT13MAWjcF/view?usp=sharing"}, {"name": "10 side fishtail single leg lifts and 10 second hold", "desc": "Follow along video, 10 lifts and then 10 second hold on each leg, optional ankle weights", "link": "https://drive.google.com/file/d/18qn58q39ISnmeO4xwoTJ-3xPLeD0YBdS/view?usp=share_link"}, {"name": "10 staddle half split slides", "desc": "Follow along video, 10 on each leg", "link": "https://drive.google.com/file/d/1uJwK-bTARc-AYaYuhxlodXB4Jv5_UeFL/view?usp=sharing"}, {"name": "Leg lift sequence", "desc": "Follow along video, x10 single leg lift, x10 ten double leg lift, x10 pike leg lift", "link": "https://drive.google.com/file/d/1mvI_ImC0iTdtMksjmUW2_tiCI3FIi5-o/view?usp=sharing"}, {"name": "10 thera band wide leg lunge", "desc": "Follow along video", "link": "https://drive.google.com/file/d/1S5_Vv5yXXkYvAtGn3cnrEsFMmaLXbgPZ/view?usp=sharing"}]}];
+
+function renderImportPreview(){
+  const wrap = document.getElementById('importPreviewList');
+  wrap.innerHTML = IMPORT_DATA.map(w => {
+    const exCount = w.exercises.length;
+    return `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><strong style="color:rgba(255,255,255,0.75)">${esc(w.name)}</strong> — ${w.type.replace('Land Training - ','')} (${exCount} exercise${exCount!==1?'s':''})</div>`;
+  }).join('');
+}
+
+async function runBulkImport(){
+  const btn = document.getElementById('btnRunImport');
+  const statusEl = document.getElementById('importStatus');
+  btn.disabled = true;
+  btn.textContent = 'Importing...';
+  statusEl.style.display = 'block';
+  statusEl.style.background = 'rgba(78,174,209,0.1)';
+  statusEl.style.color = '#7dd4f0';
+  statusEl.textContent = 'Uploading workouts to your library...';
+
+  try {
+    const updates = {};
+    IMPORT_DATA.forEach(w => {
+      const id = uid();
+      updates[id] = {
+        id,
+        type: w.type,
+        name: w.name,
+        exercises: w.exercises,
+        desc: null,
+        imageDataUrl: null,
+        ytUrl: null,
+      };
+    });
+    await dbUpd('library', updates);
+    statusEl.style.background = 'rgba(46,196,182,0.1)';
+    statusEl.style.color = '#5de3d9';
+    statusEl.textContent = `Success! ${IMPORT_DATA.length} workouts added to your library.`;
+    btn.textContent = 'Done!';
+    setTimeout(() => { closeModal('bulkImportModal'); btn.disabled=false; btn.textContent='Import All Workouts'; statusEl.style.display='none'; }, 1800);
+  } catch(ex) {
+    statusEl.style.background = 'rgba(224,92,58,0.1)';
+    statusEl.style.color = '#ff8c74';
+    statusEl.textContent = 'Error: ' + ex.message;
+    btn.disabled = false;
+    btn.textContent = 'Import All Workouts';
+  }
+}
+
 function populateFType(){const s=document.getElementById('fType');s.innerHTML='<option value="">Select type</option>'+ATYPES.map(t=>`<option value="${t}">${t}</option>`).join('');}
-function openAddW(){curImg=null;document.getElementById('wMTitle').textContent='Add Workout';document.getElementById('editId').value='';['fName','fDesc','fYt'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value=curLT||'';document.getElementById('imgPrev').style.display='none';switchMT('image');openModal('workoutModal');}
-function editW(id){const w=library[id];if(!w)return;curImg=w.imageDataUrl||null;document.getElementById('wMTitle').textContent='Edit Workout';document.getElementById('editId').value=id;document.getElementById('fType').value=w.type;document.getElementById('fName').value=w.name;document.getElementById('fDesc').value=w.desc||'';document.getElementById('fYt').value=w.ytUrl||'';if(w.imageDataUrl){document.getElementById('imgPrev').src=w.imageDataUrl;document.getElementById('imgPrev').style.display='block';switchMT('image');}else if(w.ytUrl)switchMT('youtube');else switchMT('image');openModal('workoutModal');}
-async function saveWorkout(){const t=document.getElementById('fType').value.trim(),n=document.getElementById('fName').value.trim(),d=document.getElementById('fDesc').value.trim(),yt=document.getElementById('fYt').value.trim();if(!t||!n){alert('Fill in type and name.');return;}const eid=document.getElementById('editId').value||uid();await dbSet('library/'+eid,{id:eid,type:t,name:n,desc:d,imageDataUrl:curMT==='image'?curImg:null,ytUrl:curMT==='youtube'?yt:null});closeModal('workoutModal');}
+function openAddW(){
+  curImg=null;
+  document.getElementById('wMTitle').textContent='Add Workout';
+  document.getElementById('editId').value='';
+  ['fName','fDesc','fYt'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('fType').value=curLT||'';
+  document.getElementById('imgPrev').style.display='none';
+  switchMT('image');
+  clearExerciseRows();
+  switchWorkoutFormat('simple');
+  openModal('workoutModal');
+}
+function editW(id){
+  const w=library[id];if(!w)return;
+  curImg=w.imageDataUrl||null;
+  document.getElementById('wMTitle').textContent='Edit Workout';
+  document.getElementById('editId').value=id;
+  document.getElementById('fType').value=w.type;
+  document.getElementById('fName').value=w.name;
+  clearExerciseRows();
+  if(w.exercises && w.exercises.length){
+    switchWorkoutFormat('exercises');
+    w.exercises.forEach(ex=>addExerciseRow(ex));
+  } else {
+    switchWorkoutFormat('simple');
+    document.getElementById('fDesc').value=w.desc||'';
+    document.getElementById('fYt').value=w.ytUrl||'';
+    if(w.imageDataUrl){document.getElementById('imgPrev').src=w.imageDataUrl;document.getElementById('imgPrev').style.display='block';switchMT('image');}
+    else if(w.ytUrl)switchMT('youtube');
+    else switchMT('image');
+  }
+  openModal('workoutModal');
+}
+async function saveWorkout(){
+  const t=document.getElementById('fType').value.trim();
+  const n=document.getElementById('fName').value.trim();
+  if(!t||!n){alert('Fill in type and name.');return;}
+  const eid=document.getElementById('editId').value||uid();
+
+  if(curWorkoutFormat==='exercises'){
+    const exercises=getExerciseRows();
+    if(!exercises.length){alert('Please add at least one exercise.');return;}
+    await dbSet('library/'+eid,{id:eid,type:t,name:n,exercises:exercises,desc:null,imageDataUrl:null,ytUrl:null});
+  } else {
+    const d=document.getElementById('fDesc').value.trim();
+    const yt=document.getElementById('fYt').value.trim();
+    await dbSet('library/'+eid,{id:eid,type:t,name:n,desc:d,imageDataUrl:curMT==='image'?curImg:null,ytUrl:curMT==='youtube'?yt:null,exercises:null});
+  }
+  closeModal('workoutModal');
+}
 async function delW(id){if(!confirm('Delete this workout?'))return;await dbSet('library/'+id,null);}
 function switchMT(t){curMT=t;document.querySelectorAll('.mt').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='image')||(i===1&&t==='youtube')));document.getElementById('mpImg').classList.toggle('active',t==='image');document.getElementById('mpYt').classList.toggle('active',t==='youtube');}
 function handleImg(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){alert('Max 5MB');return;}const r=new FileReader();r.onload=ev=>{curImg=ev.target.result;const p=document.getElementById('imgPrev');p.src=curImg;p.style.display='block';};r.readAsDataURL(f);}
@@ -1378,27 +1707,59 @@ function openWorkoutPanel(w, autoplay){
   const overlay=document.getElementById('workoutPanelOverlay');
   const videoWrap=document.getElementById('panelVideoWrap');
   const imgWrap=document.getElementById('panelImageWrap');
-  // Video
-  if(w.ytUrl){
-    const v=ytId(w.ytUrl);
-    document.getElementById('panelIframe').src='https://www.youtube.com/embed/'+v+'?'+(autoplay?'autoplay=1&':'')+'rel=0&modestbranding=1';
-    videoWrap.style.display='block';
-    imgWrap.style.display='none';
-  } else if(w.imageDataUrl){
-    document.getElementById('panelImage').src=w.imageDataUrl;
-    imgWrap.style.display='block';
-    videoWrap.style.display='none';
-  } else {
-    videoWrap.style.display='none';
-    imgWrap.style.display='none';
-  }
+  const exercisesWrap=document.getElementById('panelExercises');
+
   document.getElementById('panelType').textContent=w.type;
   document.getElementById('panelType').style.color=c.color||'#aaa';
   document.getElementById('panelName').textContent=w.name;
-  document.getElementById('panelDesc').textContent=w.desc||'';
-  const lnk=document.getElementById('panelLink');
-  if(w.ytUrl){lnk.href=w.ytUrl;lnk.style.display='inline-flex';}
-  else lnk.style.display='none';
+
+  const hasExercises = w.exercises && w.exercises.length;
+
+  if(hasExercises){
+    // Multi-exercise workout: render a list, hide single video/image/desc/link
+    videoWrap.style.display='none';
+    imgWrap.style.display='none';
+    document.getElementById('panelDesc').textContent='';
+    document.getElementById('panelLink').style.display='none';
+    exercisesWrap.style.display='block';
+    exercisesWrap.innerHTML = w.exercises.map((ex,i)=>{
+      const embedUrl = ex.link ? getVideoEmbedUrl(ex.link, false) : null;
+      const isDrive = ex.link && isDriveLink(ex.link);
+      const linkLabel = ex.link ? (isDrive?'\u{1F4C2} Open in Drive':'\u25B6 Open in YouTube') : '';
+      return `<div class="panel-exercise-item">
+        <div class="panel-exercise-num">${i+1}</div>
+        <div class="panel-exercise-body">
+          <div class="panel-exercise-name">${esc(ex.name)}</div>
+          ${ex.desc?`<div class="panel-exercise-desc">${esc(ex.desc)}</div>`:''}
+          ${embedUrl?`<div class="panel-exercise-video"><iframe src="${embedUrl}" allowfullscreen allow="${isDrive?'autoplay':'autoplay; encrypted-media'}" loading="lazy"></iframe></div>`:''}
+          ${(ex.link&&!embedUrl)?`<a href="${esc(ex.link)}" target="_blank" class="panel-exercise-link">${linkLabel||'View link'}</a>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    // Single video/image/desc workout
+    exercisesWrap.style.display='none';
+    exercisesWrap.innerHTML='';
+    const embedUrl=getVideoEmbedUrl(w.ytUrl, autoplay);
+    if(embedUrl){
+      document.getElementById('panelIframe').src=embedUrl;
+      document.getElementById('panelIframe').setAttribute('allow', isDriveLink(w.ytUrl)?'autoplay':'autoplay; encrypted-media');
+      videoWrap.style.display='block';
+      imgWrap.style.display='none';
+    } else if(w.imageDataUrl){
+      document.getElementById('panelImage').src=w.imageDataUrl;
+      imgWrap.style.display='block';
+      videoWrap.style.display='none';
+    } else {
+      videoWrap.style.display='none';
+      imgWrap.style.display='none';
+    }
+    document.getElementById('panelDesc').textContent=w.desc||'';
+    const lnk=document.getElementById('panelLink');
+    if(w.ytUrl){lnk.href=w.ytUrl;lnk.textContent=isDriveLink(w.ytUrl)?'\u{1F4C2} Open in Google Drive':'\u25B6 Open in YouTube';lnk.style.display='inline-flex';}
+    else lnk.style.display='none';
+  }
+
   // Animate in
   overlay.style.display='block';
   setTimeout(()=>{overlay.style.background='rgba(0,0,0,0.45)';panel.style.transform='translateY(0)';},10);
@@ -1694,11 +2055,11 @@ function renderSVGChart(points, meta){
     if(points.length>6&&i!==0&&i!==points.length-1&&i!==Math.floor((points.length-1)/2))return '';
     const parts=(p.date||'').split(' ');
     const lbl=parts.length>=2?parts[0]+' '+parts[1]:p.date||'';
-    return `<text x="${xS(i).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="DM Mono,monospace">${lbl}</text>`;
+    return `<text class="chart-axis-text" x="${xS(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" font-family="DM Mono,monospace">${lbl}</text>`;
   }).join('');
 
   // Y axis label
-  const yLabel=`<text x="8" y="${(PAD.top+cH/2).toFixed(1)}" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-size="9" font-family="DM Mono,monospace" transform="rotate(-90,8,${(PAD.top+cH/2).toFixed(1)})">${meta.unit}</text>`;
+  const yLabel=`<text class="chart-axis-text" x="8" y="${(PAD.top+cH/2).toFixed(1)}" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" transform="rotate(-90,8,${(PAD.top+cH/2).toFixed(1)})">${meta.unit}</text>`;
 
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <rect width="${W}" height="${H}" fill="transparent"/>
@@ -1708,8 +2069,8 @@ function renderSVGChart(points, meta){
     ${dots}
     ${xLabels}
     ${yLabel}
-    <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${H-PAD.bottom}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <line x1="${PAD.left}" y1="${H-PAD.bottom}" x2="${W-PAD.right}" y2="${H-PAD.bottom}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <line class="chart-axis-line" x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${H-PAD.bottom}" stroke-width="1"/>
+    <line class="chart-axis-line" x1="${PAD.left}" y1="${H-PAD.bottom}" x2="${W-PAD.right}" y2="${H-PAD.bottom}" stroke-width="1"/>
   </svg>`;
 }
 
