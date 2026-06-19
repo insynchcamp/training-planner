@@ -603,11 +603,41 @@ body.light-mode .panel-exercise-name{color:#1a2a3a;}
 body.light-mode .panel-exercise-desc{color:#4a6a8a;}
 body.light-mode .panel-exercise-num{background:rgba(160,120,48,0.12);color:#7a5010;}
 
+
+/* BULLETPROOF SCROLL FIX for Results/Progress/Athletes pages */
+.page-fixed-scroll.active{
+  position:fixed !important;
+  top:54px;
+  left:0;
+  right:0;
+  bottom:0;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  display:block !important;
+  z-index:1;
+}
+body:has(.prog-banner.show) .page-fixed-scroll.active{
+  top:92px;
+}
+
+
+.cr-entry-switcher{display:inline-block;}
+.cr-entry-select{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:rgba(255,255,255,0.7);font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;}
+.cr-entry-select option{background:#1a3050;color:#fff;}
+body.light-mode .cr-entry-select{background:#fff;border-color:rgba(0,0,0,0.15);color:#1a2a3a;}
+body.light-mode .cr-entry-select option{background:#fff;color:#1a2a3a;}
+
+
+.panel-exercise-reveal-btn{display:flex;align-items:center;gap:6px;width:100%;padding:8px 12px;margin-top:4px;background:rgba(78,174,209,0.08);border:1px solid rgba(78,174,209,0.25);border-radius:6px;color:#7dd4f0;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.panel-exercise-reveal-btn:hover{background:rgba(78,174,209,0.15);border-color:rgba(78,174,209,0.4);}
+body.light-mode .panel-exercise-reveal-btn{background:rgba(26,90,154,0.06);border-color:rgba(26,90,154,0.2);color:#1a5a9a;}
+body.light-mode .panel-exercise-reveal-btn:hover{background:rgba(26,90,154,0.12);}
+
 @media print{
   #loadingScreen,#loginScreen,.app-header,.prog-banner,.plan-wks,.fab,.pop,.lib-sb,.mob-drawer,.day-actions,.snote-wrap,.vbtn,button{display:none!important;}
   html,body{height:auto;overflow:visible;}
   #appScreen{display:block!important;height:auto;overflow:visible;}
-  .app-body,.page,.page.active{display:block!important;height:auto;overflow:visible;}
+  .app-body,.page,.page.active,.page-fixed-scroll.active{display:block!important;height:auto;overflow:visible;position:static!important;}
   .plan-body{padding:0;overflow:visible;}
   .wkp{display:block!important;page-break-after:always;}
   .wkp:last-child{page-break-after:avoid;}
@@ -727,7 +757,7 @@ body.light-mode .panel-exercise-num{background:rgba(160,120,48,0.12);color:#7a50
       <div class="plan-body" id="planBodyEl"></div>
     </div>
     <!-- MY PROGRESS PAGE -->
-    <div id="page-progress" class="page">
+    <div id="page-progress" class="page page-fixed-scroll">
       <div style="padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Progress</h2>
@@ -749,7 +779,7 @@ body.light-mode .panel-exercise-num{background:rgba(160,120,48,0.12);color:#7a50
     </div>
 
     <!-- ATHLETES PAGE -->
-    <div id="page-athletes" class="page">
+    <div id="page-athletes" class="page page-fixed-scroll">
       <div>
         <!-- Sub-tabs -->
         <div style="display:flex;align-items:center;gap:6px;padding:12px 20px 0;background:rgba(0,0,0,0.15);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:5;">
@@ -770,7 +800,7 @@ body.light-mode .panel-exercise-num{background:rgba(160,120,48,0.12);color:#7a50
   </div>
 
     <!-- RESULTS PAGE -->
-    <div id="page-results" class="page">
+    <div id="page-results" class="page page-fixed-scroll">
       <div style="padding:18px 20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
           <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">My Results</h2>
@@ -1599,6 +1629,25 @@ function getResultValue(r, meta){
 
 function stdLabel(s){return s==='gold'?'🥇 Gold':s==='amber'?'Amber':s==='red'?'Red':'';}
 
+function getLatestEntry(athleteResults){
+  if(!athleteResults) return null;
+  const entries = Object.entries(athleteResults)
+    .filter(([k])=>k.startsWith('entry_'))
+    .map(([k,v])=>({id:k,...v}))
+    .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  return entries.length ? entries[0] : null;
+}
+
+function getAllEntries(athleteResults){
+  if(!athleteResults) return [];
+  return Object.entries(athleteResults)
+    .filter(([k])=>k.startsWith('entry_'))
+    .map(([k,v])=>({id:k,...v}))
+    .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+}
+
+let coachResultsEntryIndex = {}; // uid -> currently displayed entry index
+
 async function loadCoachResults(){
   const wrap = document.getElementById('coachResultsWrap');
   wrap.innerHTML = '<p style="color:rgba(255,255,255,0.22);font-size:12px">Loading results...</p>';
@@ -1614,9 +1663,13 @@ async function loadCoachResults(){
     return;
   }
 
+  window._coachResultsRaw = allResults;
+
   const blocks = athletes.map(([uid2, u])=>{
-    const r = allResults[uid2]||{};
-    const hasAny = Object.keys(r).some(k=>k!=='savedAt'&&r[k]!=='');
+    const allEntries = getAllEntries(allResults[uid2]);
+    const entryIdx = coachResultsEntryIndex[uid2] || 0;
+    const r = allEntries[entryIdx] || {};
+    const hasAny = allEntries.length > 0;
     const initials = (u.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 
     // Count gold/amber/red across all tests
@@ -1626,13 +1679,21 @@ async function loadCoachResults(){
       if(s==='gold')golds++;else if(s==='amber')ambers++;else if(s==='red')reds++;
     }));
 
-    const savedDate = r.savedAt ? new Date(r.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    const savedDate = r.date ? formatDate(r.date) : '';
 
     const pillsHtml = hasAny ? `
       ${golds?'<span class="cr-pill gold">🥇 '+golds+' Gold</span>':''}
       ${ambers?'<span class="cr-pill amber">🟠 '+ambers+' Amber</span>':''}
       ${reds?'<span class="cr-pill red">🔴 '+reds+' Red</span>':''}
     ` : '<span class="cr-pill none">No results yet</span>';
+
+    const entrySwitcher = allEntries.length > 1 ? `
+      <div class="cr-entry-switcher" onclick="event.stopPropagation()">
+        <select onchange="switchCrEntry('${uid2}', this.value)" class="cr-entry-select">
+          ${allEntries.map((e,i)=>`<option value="${i}" ${i===entryIdx?'selected':''}>${formatDate(e.date)||'Entry '+(i+1)}</option>`).join('')}
+        </select>
+      </div>
+    ` : '';
 
     const sectionsHtml = TEST_META.map(sec=>{
       const testsHtml = sec.tests.map(t=>{
@@ -1661,7 +1722,8 @@ async function loadCoachResults(){
           <div class="cr-athlete-email">${u.email||''}</div>
         </div>
         <div class="cr-summary-pills">${pillsHtml}</div>
-        ${savedDate?'<div class="cr-date">Last updated: '+savedDate+'</div>':''}
+        ${entrySwitcher}
+        ${savedDate?'<div class="cr-date">'+(allEntries.length>1?'Viewing: ':'Recorded: ')+savedDate+(allEntries.length>1?' ('+allEntries.length+' submissions)':'')+'</div>':''}
         <span class="cr-chevron">&#9660;</span>
       </div>
       <div class="cr-body">${hasAny?sectionsHtml:'<div class="cr-no-results">This athlete has not saved any results yet.</div>'}</div>
@@ -1677,6 +1739,15 @@ async function loadCoachResults(){
     <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:14px;">Click an athlete to expand their full results. Athletes are sorted alphabetically.</p>
     ${blocks}
   `;
+}
+
+
+function switchCrEntry(uid2, idx){
+  coachResultsEntryIndex[uid2] = parseInt(idx);
+  const wasOpen = document.getElementById('crblock-'+uid2)?.classList.contains('open');
+  loadCoachResults().then(()=>{
+    if(wasOpen) document.getElementById('crblock-'+uid2)?.classList.add('open');
+  });
 }
 
 function toggleCrBlock(uid2){
@@ -1700,6 +1771,17 @@ function showPage(n){
   if(n==='results')initResultsPage();
   if(n==='progress')initProgressPage();
 }
+
+function revealExerciseMedia(elId, embedUrl, isDrive){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = `<iframe src="${embedUrl}" allowfullscreen allow="${isDrive?'autoplay':'autoplay; encrypted-media'}"></iframe>`;
+  el.style.display = 'block';
+  // Hide the button that triggered this
+  const btn = el.previousElementSibling;
+  if(btn && btn.classList.contains('panel-exercise-reveal-btn')) btn.style.display='none';
+}
+
 function openWorkoutPanel(w, autoplay){
   if(!w)return;
   const c=TC[w.type]||{};
@@ -1725,14 +1807,19 @@ function openWorkoutPanel(w, autoplay){
     exercisesWrap.innerHTML = w.exercises.map((ex,i)=>{
       const embedUrl = ex.link ? getVideoEmbedUrl(ex.link, false) : null;
       const isDrive = ex.link && isDriveLink(ex.link);
-      const linkLabel = ex.link ? (isDrive?'\u{1F4C2} Open in Drive':'\u25B6 Open in YouTube') : '';
+      const exId = 'pex_'+i+'_'+Date.now();
       return `<div class="panel-exercise-item">
         <div class="panel-exercise-num">${i+1}</div>
         <div class="panel-exercise-body">
           <div class="panel-exercise-name">${esc(ex.name)}</div>
           ${ex.desc?`<div class="panel-exercise-desc">${esc(ex.desc)}</div>`:''}
-          ${embedUrl?`<div class="panel-exercise-video"><iframe src="${embedUrl}" allowfullscreen allow="${isDrive?'autoplay':'autoplay; encrypted-media'}" loading="lazy"></iframe></div>`:''}
-          ${(ex.link&&!embedUrl)?`<a href="${esc(ex.link)}" target="_blank" class="panel-exercise-link">${linkLabel||'View link'}</a>`:''}
+          ${embedUrl?`
+            <button class="panel-exercise-reveal-btn" onclick="revealExerciseMedia('${exId}','${embedUrl.replace(/'/g,"\\'")}',${isDrive})">
+              &#9654; Click to view video
+            </button>
+            <div class="panel-exercise-video" id="${exId}" style="display:none;"></div>
+          `:''}
+          ${(ex.link&&!embedUrl)?`<a href="${esc(ex.link)}" target="_blank" class="panel-exercise-link">View link</a>`:''}
         </div>
       </div>`;
     }).join('');
